@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://orbiget.com/sitemap.xml
+Sitemap: https://orbithub.work/sitemap.xml
