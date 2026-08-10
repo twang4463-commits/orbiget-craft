@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OrbiGet Craft - 网页素材采集与创作管理工具 | 剪藏、工作台、AI 复盘</title>
+<!-- deployed trigger: 2026-08-03 -->
+<meta name="description" content="OrbiGet Craft 是网页素材采集与创作管理工具：一键剪藏网页内容、自动归集入库、场景化工作台写作、AI 辅助复盘。本地优先，数据主权在你。支持 Edge 与 Chrome 等浏览器。">
+<meta property="og:title" content="OrbiGet Craft - 网页素材采集与创作管理工具">
+<meta property="og:description" content="网页剪藏 · 素材管理 · 创作工作台 · AI 复盘 · 本地优先">
+<meta property="og:image" content="https://orbiget.com/og-image.png">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+/* ============ tokens ============ */
+:root{
+  --paper:#F5F4F2;
+  --paper-2:#F1F0EE;
+  --card:#FFFFFF;
+  --paper-warm:#FDFAF5;
+  --ink:#2A2520;
+  --ink-2:#4A4238;
+  --ink-3:#6E6455;
+  --ink-disabled:#9C9284;
+  --line:#DDD6CA;
+  --line-subtle:#ECE7DD;
+  --line-ink:rgba(42,37,32,.14);
+  --divider:#E0D9CC;
+  --green:#52525B;
+  --green-deep:#27272A;
+  --green-soft:rgba(82,82,91,.10);
+  --green-bg:#F4F4F5;
+  --amber:#A6732A;
+  --amber-hover:#B8853A;
+  --amber-deep:#7A4E18;
+  --amber-soft:#C99A55;
+  --amber-muted:rgba(166,115,42,.14);
+  --on-amber:#FFFFFF;
+  --shadow-hard:6px 6px 0 rgba(42,37,32,.92);
+  --shadow-soft:0 1px 0 rgba(166,115,42,.18),0 1px 2px rgba(74,66,56,.06),0 3px 8px rgba(74,66,56,.08),0 8px 18px rgba(74,66,56,.06);
+  --shadow-md:0 1px 0 rgba(166,115,42,.18),0 1px 3px rgba(74,66,56,.06),0 4px 10px rgba(74,66,56,.09),0 12px 24px rgba(74,66,56,.11),0 20px 40px rgba(74,66,56,.07);
+  --f-display:"Noto Serif SC","Songti SC","STSong","SimSun","Times New Roman",serif;
+  --f-body:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --f-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Courier New",monospace;
+  --radius:14px;
+  --radius-lg:22px;
+  --radius-card:24px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--f-body);
+  font-size:16px;
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+html,body{min-height:100dvh;background:var(--paper)}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.35;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .03 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+::selection{background:var(--amber);color:var(--ink)}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+.wrap{max-width:1160px;margin:0 auto;padding:0 28px;position:relative;z-index:2}
+section{scroll-margin-top:84px}
+/* ============ type ============ */
+.kicker{
+  font-family:var(--f-mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--green);display:inline-flex;align-items:center;gap:10px;margin-bottom:18px;
+}
+.kicker::before{content:"";width:26px;height:1px;background:var(--green)}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;line-height:1.18;letter-spacing:-.01em}
+.h2{font-size:clamp(30px,4vw,44px);margin-bottom:16px}
+.lede{color:var(--ink-2);font-size:17px;max-width:720px}
+/* ============ buttons ============ */
+.btn{
+  display:inline-flex;align-items:center;gap:9px;
+  font-size:15px;font-weight:600;padding:14px 24px;border-radius:11px;
+  border:1.5px solid var(--ink);transition:transform .16s ease,box-shadow .16s ease,background .16s ease,opacity .2s;
+  position:relative;white-space:nowrap;
+}
+.btn-primary{background:var(--amber);color:var(--on-amber);border-color:var(--ink);box-shadow:4px 4px 0 var(--ink)}
+.btn-primary:hover{background:var(--amber-hover);transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink)}
+.btn-primary:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.btn-ghost{background:var(--card);color:var(--ink);box-shadow:4px 4px 0 rgba(27,30,35,.16)}
+.btn-ghost:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 rgba(27,30,35,.2)}
+.btn .soon{
+  font-family:var(--f-mono);font-size:10px;font-weight:500;letter-spacing:.06em;
+  background:var(--amber-soft);color:var(--amber-deep);border:1px solid var(--amber);
+  padding:2px 7px;border-radius:99px;
+}
+.btn[disabled],.btn.is-disabled{opacity:.5;pointer-events:none;cursor:not-allowed}
+/* ============ header ============ */
+header{
+  position:sticky;top:0;z-index:50;
+  background:rgba(250,247,241,.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+}
+.nav{display:flex;align-items:center;gap:34px;height:66px}
+.brand{display:flex;align-items:center;gap:11px;font-family:var(--f-display);font-weight:700;font-size:19px;letter-spacing:-.01em}
+.brand-mark{width:30px;height:30px;border-radius:50%;flex:none;display:grid;place-items:center}
+.brand-mark img{width:100%;height:100%;border-radius:50%;display:block}
+.brand-text{display:flex;flex-direction:column;gap:1px;line-height:1.1}
+.brand-slogan{font-family:var(--f-mono);font-size:10.5px;font-weight:400;color:var(--ink-3);letter-spacing:.04em;margin-top:1px}
+.brand small{font-family:var(--f-mono);font-size:10px;font-weight:400;color:var(--ink-3);letter-spacing:.1em;border:1px solid var(--line);border-radius:99px;padding:2px 8px;margin-left:2px}
+.nav-links{display:flex;gap:26px;margin-left:auto;font-size:14.5px;font-weight:500;color:var(--ink-2)}
+.nav-links a{transition:color .15s;position:relative}
+.nav-links a:hover{color:var(--ink)}
+.nav-cta{margin-left:8px}
+.nav-cta .btn{padding:10px 18px;font-size:14px;border-radius:9px}
+/* ============ hero ============ */
+.hero{padding:84px 0 96px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.hero::after{
+  content:"";position:absolute;top:-180px;right:-140px;width:560px;height:560px;border-radius:50%;
+  background:radial-gradient(circle,rgba(166,115,42,.12),transparent 65%);pointer-events:none;
+}
+.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:64px;align-items:center;position:relative;z-index:2}
+.hero-left{position:relative;z-index:2}
+.hero-right{position:relative;min-height:480px}
+.hero-right::before{
+  content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:480px;height:480px;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(166,115,42,.10),rgba(166,115,42,0) 70%);
+  pointer-events:none;z-index:0;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:9px;
+  background:var(--green-soft);color:var(--green);border:1px solid rgba(82,82,91,.25);
+  font-size:13px;font-weight:600;padding:7px 15px;border-radius:99px;margin-bottom:28px;
+}
+.hero-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2.4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.hero h1{font-size:clamp(40px,5.4vw,66px);margin-bottom:28px;letter-spacing:-.02em}
+.hero h1 em{font-style:italic;color:var(--amber);position:relative;white-space:nowrap}
+.hero h1 em::after{
+  content:"";position:absolute;left:0;right:0;bottom:.08em;height:.32em;z-index:-1;
+  background:rgba(166,115,42,.18);transform:skewX(-8deg);border-radius:2px;
+}
+.hero-sub{color:var(--ink-2);font-size:17.5px;max-width:620px;margin-bottom:36px}
+.hero-sub strong{color:var(--ink);font-weight:600}
+.hero-ctas{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:32px}
+.hero-left .hero-ctas{justify-content:flex-start}
+.footer-cta .hero-ctas{justify-content:center}
+.hero-trust{display:flex;gap:12px;flex-wrap:wrap;font-family:var(--f-mono);font-size:12px;color:var(--ink-3)}
+.hero-left .hero-trust{justify-content:flex-start}
+.footer-cta .hero-trust{justify-content:center}
+.hero-trust span{display:inline-flex;align-items:center;gap:6px}
+.hero-trust b{color:var(--green);font-weight:500}
+.hero-trust .sep{color:var(--line)}
+/* Hero preview mockup */
+.hero-preview{position:relative;z-index:2;height:100%;min-height:440px}
+.preview-card{position:absolute;background:var(--card);border:1.5px solid var(--ink);border-radius:16px;box-shadow:var(--shadow-md);overflow:hidden;animation:float 6s ease-in-out infinite}
+.preview-card .bar{height:28px;background:var(--green-deep);border-bottom:1px solid var(--ink);display:flex;align-items:center;gap:6px;padding:0 12px}
+.preview-card .bar .dot{width:8px;height:8px;border-radius:50%;background:var(--amber)}
+.preview-card .bar .dot:nth-child(2){background:#e2e2e2}
+.preview-card .bar .dot:nth-child(3){background:#e2e2e2}
+.preview-card .content{padding:16px}
+.pc1{width:300px;height:200px;top:30px;left:40px;transform:rotate(-4deg);--r:-4deg;animation-delay:0s}
+.pc1 .line{height:8px;background:var(--line);border-radius:4px;margin-bottom:10px}
+.pc1 .line:nth-child(1){width:60%}
+.pc1 .line:nth-child(2){width:100%}
+.pc1 .line:nth-child(3){width:80%}
+.pc1 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+.pc1 .grid .cell{height:50px;border-radius:6px;background:linear-gradient(135deg,var(--amber-soft),var(--amber-muted));}
+.pc2{width:320px;height:240px;top:100px;left:50px;z-index:2;transform:rotate(2deg);--r:2deg;animation-delay:1.5s;box-shadow:var(--shadow-hard)}
+.pc2 .article{font-size:12px;color:var(--ink-2);line-height:1.8}
+.pc2 .article .hl{background:var(--green-soft);padding:0 2px;border-radius:2px;color:var(--green-deep)}
+.pc3{width:270px;top:270px;left:35px;z-index:3;padding:14px 16px;border-radius:12px;--r:-1deg;animation-delay:3s}
+.pc3 .log{display:flex;align-items:center;gap:10px;font-size:12px;margin-bottom:8px}
+.pc3 .log .check{width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-size:10px;flex:none}
+.pc3 .log .time{font-family:var(--f-mono);font-size:10px;color:var(--ink-3);margin-left:auto}
+@keyframes float{0%,100%{transform:translateY(0) rotate(var(--r,0deg))}50%{transform:translateY(-12px) rotate(var(--r,0deg))}}
+/* ============ demo ============ */
+.demo{padding:96px 0;border-bottom:1px solid var(--line);background:
+  linear-gradient(var(--paper-2) 1px,transparent 1px) 0 0/100% 44px,
+  var(--paper);
+}
+.demo-head{display:flex;align-items:flex-end;justify-content:space-between;gap:30px;flex-wrap:wrap;margin-bottom:40px}
+.demo-steps{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:26px}
+.step-chip{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--f-mono);font-size:12px;color:var(--ink-3);
+  background:var(--card);border:1px solid var(--line);border-radius:99px;padding:7px 14px;
+  transition:all .3s;
+}
+.step-chip b{font-weight:500}
+.step-chip .n{color:var(--ink-3)}
+.step-chip.active{border-color:var(--ink);color:var(--ink);box-shadow:3px 3px 0 rgba(27,30,35,.15)}
+.step-chip.active .n{color:var(--amber-deep)}
+.step-chip.done{background:var(--green-soft);border-color:rgba(82,82,91,.3);color:var(--green-deep)}
+.step-chip.done .n{color:var(--green)}
+.demo-frame{background:var(--card);border:1.5px solid var(--ink);border-radius:var(--radius);box-shadow:var(--shadow-hard);overflow:hidden}
+.demo-frame-bar{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1.5px solid var(--ink);background:var(--green-deep);color:var(--paper)}
+.demo-frame-bar .lamp{width:8px;height:8px;border-radius:50%;background:var(--amber);box-shadow:0 0 8px var(--amber)}
+.demo-frame-bar strong{font-family:var(--f-display);font-size:15px;font-weight:600}
+.demo-frame-bar span{font-family:var(--f-mono);font-size:11px;opacity:.6;margin-left:auto}
+/* ============ auto demo screens ============ */
+.demo.auto .demo-frame{box-shadow:var(--shadow-hard),0 0 0 2px rgba(82,82,91,.12)}
+.auto-hint{padding:16px 24px;border-top:1.5px solid var(--line-ink);background:var(--paper-warm);display:flex;align-items:center;gap:12px}
+.auto-hint .ctrl-msg{font-family:var(--f-mono);font-size:11.5px;color:var(--ink-2);display:inline-flex;align-items:center;gap:9px}
+.auto-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 1.6s infinite;flex:none}
+.stage-screen{display:none;min-height:430px;position:relative;animation:screenIn .5s ease both}
+.stage-screen.active{display:block}
+@keyframes screenIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.ss-top{display:flex;align-items:center;gap:10px;padding:11px 22px;border-bottom:1px solid var(--line-ink);background:var(--paper-warm);font-family:var(--f-mono);font-size:11.5px;color:var(--ink-3);flex-wrap:wrap}
+.ss-top .ss-tab{padding:4px 11px;border-radius:6px;background:var(--card);border:1px solid var(--line-ink);color:var(--ink-2);font-weight:500}
+.ss-top .ss-tab.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.ss-top .ss-sep{color:var(--line);margin:0 2px}
+.ss-top .ss-end{margin-left:auto;display:flex;align-items:center;gap:10px}
+.ss-top .ss-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+/* Screen 1: Capture */
+.ss-capture-with-sides{display:grid;grid-template-columns:154px 1fr 174px;background:var(--paper-warm);min-height:420px}
+.ss-side{padding:14px 11px;background:var(--card);border-right:1.5px solid var(--line-ink);display:flex;flex-direction:column}
+.ss-side-right{border-right:none;border-left:1.5px solid var(--line-ink)}
+.ss-side h5{font-size:10px;font-weight:600;color:var(--ink-3);margin-bottom:10px;font-family:var(--f-mono);letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between}
+.ss-source{display:flex;align-items:flex-start;gap:7px;padding:8px 9px;border-radius:9px;margin-bottom:5px;border:1px solid transparent;transition:all .15s}
+.ss-source.on{background:var(--green-soft);border-color:rgba(82,82,91,.25)}
+.ss-source-ic{font-size:15px;line-height:1;flex:none}
+.ss-source b{display:block;font-size:11.5px;color:var(--ink);margin-bottom:1px}
+.ss-source small{display:block;font-size:9.5px;color:var(--ink-3);line-height:1.25}
+.ss-capture-main{padding:15px;overflow:auto;min-height:0}
+.ss-capview{display:none}
+.ss-capview.active{display:block}
+.ss-capbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.ss-capbar .url{flex:1;min-width:180px;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 12px;font-family:var(--f-mono);font-size:11.5px;color:var(--ink-2);display:flex;align-items:center;gap:8px}
+.ss-capbar .url::before{content:"🔒";font-size:9px;opacity:.5}
+.ss-capbar .capall{background:var(--green);color:var(--paper);border:1px solid var(--green-deep);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600}
+.ss-capbar .capall.got{background:var(--paper-2);color:var(--ink-3);border-color:var(--line);pointer-events:none}
+.ss-article{background:var(--card);border:1.5px solid var(--line-ink);border-radius:14px;padding:22px 26px}
+.ss-article .src{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.ss-article .src .fav{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--amber),var(--amber-deep));display:grid;place-items:center;color:#fff;font-family:var(--f-display);font-weight:700;font-size:13px}
+.ss-article .src .src-meta{font-family:var(--f-mono);font-size:11px;color:var(--ink-3)}
+.ss-article h4{font-family:var(--f-display);font-size:21px;font-weight:700;line-height:1.32;margin-bottom:6px}
+.ss-article .byline{font-size:12px;color:var(--ink-3);margin-bottom:16px;display:flex;gap:14px;flex-wrap:wrap}
+.ss-article .para{position:relative;padding:9px 14px;margin:0 -14px 5px;border-radius:10px;transition:background .2s}
+.ss-article .para.captured{background:var(--green-soft)}
+.ss-article .para.captured p{color:var(--green-deep)}
+.ss-article .para p{font-size:14px;color:#3B3F45;line-height:1.85}
+.ss-article .para .ss-cap{position:absolute;top:7px;right:8px;font-size:11px;font-weight:600;color:var(--paper);background:var(--ink);border-radius:6px;padding:4px 9px;opacity:0;transform:translateY(4px);transition:all .18s}
+.ss-article .para.captured .ss-cap{background:var(--green);opacity:1;transform:none;pointer-events:none}
+.ss-article .foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line-subtle);font-family:var(--f-mono);font-size:11px;color:var(--ink-3)}
+.ss-article .foot .ibcount{color:var(--green-deep);font-weight:500}
+.ss-recent-list{flex:1;overflow:auto;min-height:0}
+.ss-recent-item{padding:7px 8px;background:var(--paper-warm);border:1px solid var(--line-subtle);border-radius:8px;margin-bottom:5px;font-size:11px;animation:recentIn .25s ease}
+@keyframes recentIn{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:none}}
+.ss-recent-item .rt{font-family:var(--f-mono);font-size:9px;color:var(--ink-3);margin-bottom:2px}
+.ss-recent-item .rl{color:var(--ink);font-weight:500;line-height:1.35}
+.ss-recent-item .rl span{font-size:9px;color:var(--green-deep);margin-left:4px}
+.ss-recent-count{font-size:10px;background:var(--green-soft);color:var(--green-deep);padding:1px 6px;border-radius:99px;border:1px solid rgba(82,82,91,.25)}
+.ss-monitor{margin-top:auto;padding-top:10px;border-top:1px solid var(--line-subtle);display:flex;align-items:center;gap:7px;font-size:10.5px;color:var(--green-deep)}
+.ss-monitor-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+.ss-shot-bar{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.ss-shot-area{display:flex;flex-direction:column;gap:12px}
+.ss-shot-frame{position:relative;width:100%;height:210px;background:linear-gradient(180deg,var(--paper) 0%,var(--paper-2) 100%);border:1.5px dashed var(--line-ink);border-radius:12px;overflow:hidden;display:grid;place-items:center}
+.ss-shot-sel{position:absolute;left:18%;top:16%;width:48%;height:46%;border:2px dashed var(--green);background:rgba(82,82,91,.08);border-radius:8px;box-shadow:0 0 0 2000px rgba(42,37,32,.12)}
+.ss-shot-hint{position:relative;z-index:1;font-size:11.5px;color:var(--ink-3);background:var(--card);padding:6px 12px;border-radius:99px;border:1px solid var(--line)}
+.ss-shot-tip{font-size:10.5px;color:var(--ink-3)}
+.ss-clip-area{background:var(--card);border:1.5px solid var(--line-ink);border-radius:14px;padding:20px;text-align:center}
+.ss-clip-status{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ink);margin-bottom:10px}
+.ss-clip-desc{font-size:12px;color:var(--ink-3);line-height:1.65;margin-bottom:16px}
+.ss-clip-sim{border:1px dashed var(--line);border-radius:10px;padding:12px 14px;background:var(--paper);font-size:12.5px;color:var(--ink-2);margin-bottom:12px;font-style:italic}
+.ss-paste-area{display:flex;flex-direction:column;gap:10px}
+.ss-paste-area label{font-size:12px;color:var(--ink-3)}
+.ss-paste-area label kbd{font-family:var(--f-mono);font-size:10px;background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+.paste-mirror{width:100%;min-height:140px;border:1.5px solid var(--line-ink);border-radius:10px;padding:24px 12px;font-size:13px;background:var(--card);color:var(--ink);font-style:italic;display:flex;align-items:center;justify-content:center;text-align:center}
+/* Screen 2: Inbox */
+.ss-inbox{padding:20px 24px;background:var(--paper-warm);min-height:430px}
+.ss-inbox-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.ss-inbox-h h3{font-family:var(--f-display);font-size:21px;font-weight:700}
+.ss-inbox-h .sub{font-size:12.5px;color:var(--ink-3)}
+.ss-inbox-h .ct{margin-left:auto;background:var(--green-soft);color:var(--green-deep);font-family:var(--f-mono);font-size:11px;font-weight:500;padding:2px 10px;border-radius:99px;border:1px solid rgba(82,82,91,.3)}
+.ss-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.ss-tabs span{font-size:12px;padding:4px 11px;border-radius:6px;background:var(--card);border:1px solid var(--line-ink);color:var(--ink-2);font-weight:500}
+.ss-tabs span.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.ss-tools{display:flex;gap:8px;margin-bottom:16px}
+.ss-tools input{flex:1;background:var(--card);border:1.5px solid var(--line-ink);border-radius:9px;padding:8px 14px;font-size:12.5px;color:var(--ink)}
+.ss-tools .go{background:var(--card);border:1.5px solid var(--line-ink);border-radius:9px;padding:8px 14px;font-size:12px;font-weight:600;color:var(--ink-2)}
+.ss-tools .newproj{background:var(--ink);color:var(--paper);border-radius:9px;padding:8px 14px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:5px}
+.ss-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.ss-card{background:var(--card);border:1.5px solid var(--line-ink);border-radius:12px;overflow:hidden;position:relative;transition:transform .2s,box-shadow .2s}
+.ss-card .cover{height:148px;position:relative;overflow:hidden}
+.ss-card .cover .bad{position:absolute;top:7px;left:7px;background:rgba(255,255,255,.92);border-radius:4px;padding:2px 6px;font-family:var(--f-mono);font-size:9px;color:var(--ink-2)}
+.ss-card .cover .src{position:absolute;bottom:7px;right:7px;background:rgba(42,37,32,.7);color:var(--paper);font-family:var(--f-mono);font-size:9px;padding:2px 6px;border-radius:4px}
+.ss-card .lab{padding:9px 11px 4px;font-size:12.5px;font-weight:500;color:var(--ink)}
+.ss-card .lab .from{font-family:var(--f-mono);font-size:10px;color:var(--ink-3);font-weight:400;display:block;margin-top:2px}
+.ss-card .acts{padding:6px 11px 10px;display:flex;gap:6px;align-items:center}
+.ss-card .acts .rename{flex:1;background:var(--paper-warm);border:1px solid var(--line);border-radius:6px;padding:4px 9px;font-size:11px;color:var(--ink)}
+.ss-card .acts .proj{background:var(--amber);color:var(--ink);border:1px solid var(--ink);border-radius:6px;padding:4px 9px;font-size:10.5px;font-weight:600;box-shadow:2px 2px 0 var(--ink)}
+.cv-1{background:linear-gradient(180deg,#c7e7ed 0%,#e4f1f3 55%,#f0e9e9 100%)}
+.cv-1::before{content:"";position:absolute;left:50%;bottom:-10px;transform:translateX(-50%);width:36px;height:76px;background:linear-gradient(180deg,#E74C3C 0%,#C0392B 100%);border-radius:7px 7px 18px 18px}
+.cv-1::after{content:"🥤";position:absolute;left:50%;bottom:24px;transform:translateX(-50%);font-size:28px}
+.cv-2{background:linear-gradient(180deg,#FFD66B 0%,#E89B2A 100%)}
+.cv-2::before{content:"🌻";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:58px}
+.cv-3{background:linear-gradient(160deg,#7a98c9 0%,#c9a3e0 50%,#e0a79e 100%)}
+.cv-3::after{content:"🎨";position:absolute;right:14px;bottom:14px;font-size:22px;opacity:.85}
+.cv-4{background:var(--paper-warm);position:relative}
+.cv-4::before{content:"好字";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:var(--f-display);font-size:30px;font-weight:700;color:var(--ink)}
+/* Screen 3: Workbench */
+.ss-wb{display:grid;grid-template-columns:200px 1fr;min-height:430px;background:var(--paper-warm)}
+.ss-wb-side{padding:14px 0;border-right:1.5px solid var(--line-ink);background:var(--card)}
+.ss-wb-side h5{font-size:11px;font-weight:600;color:var(--ink-3);padding:0 14px;margin-bottom:8px;font-family:var(--f-mono);letter-spacing:.06em;text-transform:uppercase}
+.ss-wb-side .f{padding:4px 14px;font-size:12.5px;color:var(--ink-2);display:flex;align-items:center;gap:6px}
+.ss-wb-side .f.folder{font-weight:600;color:var(--ink)}
+.ss-wb-side .f.ind1{padding-left:28px}
+.ss-wb-side .f.ind2{padding-left:42px;font-size:11.5px;color:var(--ink-3)}
+.ss-wb-side .f .ic{font-family:var(--f-mono);font-size:10px;color:var(--ink-3);width:10px;flex:none}
+.ss-wb-side .f-count{margin:10px 14px 0;padding-top:10px;border-top:1px solid var(--line-subtle);font-family:var(--f-mono);font-size:10.5px;color:var(--ink-3);display:flex;justify-content:space-between}
+.ss-wb-main{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 28px;text-align:center;background:var(--paper-warm)}
+.ss-wb-main .logo{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;margin-bottom:10px}
+.ss-wb-main .logo img{width:100%;height:100%;border-radius:50%;display:block}
+.ss-wb-main h3{font-family:var(--f-display);font-size:22px;font-weight:700;margin-bottom:4px}
+.ss-wb-main .sub{font-size:12.5px;color:var(--ink-3);margin-bottom:18px;max-width:300px;line-height:1.55}
+.ss-wb-short{background:var(--card);border:1px solid var(--line-ink);border-radius:11px;padding:11px 14px;width:100%;max-width:340px;margin-bottom:16px}
+.ss-wb-short .row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:12.5px;border-bottom:1px solid var(--line-subtle)}
+.ss-wb-short .row:last-child{border-bottom:none}
+.ss-wb-short .row span:first-child{color:var(--ink-2)}
+.ss-wb-short .kbd{font-family:var(--f-mono);font-size:10.5px;background:var(--paper-warm);border:1px solid var(--line);border-radius:5px;padding:2px 7px;color:var(--ink-2)}
+.ss-wb-main .newdoc{background:var(--amber);color:var(--ink);border:1.5px solid var(--ink);border-radius:9px;padding:9px 20px;font-size:13px;font-weight:600;box-shadow:4px 4px 0 var(--ink);display:inline-flex;align-items:center;gap:6px}
+.ss-wb-main .tip{font-size:11.5px;color:var(--ink-3);margin-top:12px}
+/* Screen 4: Deliver */
+.ss-dl{padding:20px 24px;background:var(--paper-warm);min-height:430px}
+.ss-dl-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.ss-dl-h h3{font-family:var(--f-display);font-size:21px;font-weight:700}
+.ss-dl-h .sub{font-size:12.5px;color:var(--ink-3)}
+.ss-dl-grid{display:grid;grid-template-columns:1fr 220px;gap:14px}
+.ss-fc{background:var(--card);border:1.5px solid var(--line-ink);border-radius:12px;padding:13px 16px;margin-bottom:12px}
+.ss-fc .lab{display:flex;align-items:center;gap:8px;margin-bottom:11px;font-size:13px;font-weight:600;color:var(--ink)}
+.ss-fc .lab .badge{font-family:var(--f-mono);font-size:10px;background:var(--paper);color:var(--ink-3);padding:2px 7px;border-radius:5px;border:1px solid var(--line);font-weight:500}
+.ss-fc .lab .st{margin-left:auto;font-family:var(--f-mono);font-size:10px;padding:2px 8px;border-radius:5px}
+.ss-fc .lab .st.u{background:var(--paper);color:var(--ink-3);border:1px solid var(--line)}
+.ss-fc .lab .st.c{background:var(--green-soft);color:var(--green-deep);border:1px solid rgba(82,82,91,.3)}
+.ss-fc .lab .st.o{background:rgba(166,115,42,.14);color:var(--amber-deep);border:1px solid rgba(166,115,42,.3)}
+.ss-fc .fld{display:flex;align-items:center;gap:10px;margin-bottom:7px;font-size:12.5px;flex-wrap:wrap}
+.ss-fc .fld .nm{color:var(--ink-3);width:72px;flex:none;font-size:12px}
+.ss-fc .fld .pill{background:var(--paper-warm);border:1px solid var(--line);border-radius:6px;padding:4px 10px;font-size:12px;color:var(--ink);display:inline-flex;align-items:center;gap:5px}
+.ss-fc .fld .pill.act{background:var(--amber);color:var(--ink);border-color:var(--ink);font-weight:600}
+.ss-fc .fld .pill.dd::after{content:"▾";opacity:.55;font-size:8px}
+.ss-fc .fld .chk{width:13px;height:13px;border:1.5px solid var(--line-ink);border-radius:3px;background:var(--paper-warm);display:inline-grid;place-items:center}
+.ss-fc .fld .chk.on{background:var(--ink);border-color:var(--ink);color:var(--paper);font-size:10px}
+.ss-fc .fld .chk.on::after{content:"✓"}
+.ss-fc .fld .ver{font-family:var(--f-mono);font-size:12px;color:var(--ink);background:var(--paper-warm);border:1px solid var(--line);border-radius:6px;padding:4px 10px;width:80px}
+.ss-fc .hint{font-size:11px;color:var(--ink-3);padding-top:6px;border-top:1px dashed var(--line-subtle);margin-top:8px;font-family:var(--f-mono)}
+.ss-fc .input{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:5px 11px;font-size:12px;color:var(--ink);width:100%;margin-bottom:6px}
+.ss-fc .more{margin-top:6px;font-size:11px;color:var(--ink-3);display:inline-flex;align-items:center;gap:4px}
+.ss-fc .more::before{content:"+";font-weight:700;color:var(--amber-deep)}
+.ss-fc .pack-row{display:flex;justify-content:flex-end;align-items:center;gap:12px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line-subtle)}
+.ss-fc .pack-path{font-family:var(--f-mono);font-size:11px;color:var(--ink-3)}
+.ss-fc .btn-pack{background:var(--amber);color:var(--ink);border:1.5px solid var(--ink);border-radius:8px;padding:8px 16px;font-size:12.5px;font-weight:600;box-shadow:3px 3px 0 var(--ink);display:inline-flex;align-items:center;gap:6px}
+.ss-sig{background:var(--card);border:1.5px solid var(--line-ink);border-radius:12px;padding:14px 16px;height:fit-content;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px}
+.ss-sig .ic{width:34px;height:34px;border-radius:50%;background:var(--paper);border:1.5px dashed var(--line-ink);display:grid;place-items:center;color:var(--ink-3);font-size:16px}
+.ss-sig h4{font-size:13px;font-weight:600;color:var(--ink)}
+.ss-sig p{font-size:11px;color:var(--ink-3);line-height:1.55}
+/* Screen 5: Review */
+.ss-rv{padding:20px 24px;background:var(--paper-warm);min-height:430px}
+.ss-rv-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.ss-rv-h h3{font-family:var(--f-display);font-size:21px;font-weight:700}
+.ss-rv-h .sub{font-size:12.5px;color:var(--ink-3)}
+.ss-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.ss-st{background:var(--card);border:1.5px solid var(--line-ink);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px}
+.ss-st .ic{width:34px;height:34px;border-radius:9px;background:var(--green-soft);display:grid;place-items:center;color:var(--green-deep);font-size:16px;flex:none}
+.ss-st .num{font-family:var(--f-display);font-size:22px;font-weight:700;color:var(--ink);line-height:1}
+.ss-st .lbl{font-size:11px;color:var(--ink-3);margin-top:2px}
+.ss-pr{background:var(--card);border:1.5px solid var(--line-ink);border-radius:12px;padding:14px 18px;margin-bottom:10px}
+.ss-pr-h{display:flex;align-items:center;gap:12px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--line-subtle)}
+.ss-pr-h h4{font-size:14px;font-weight:600}
+.ss-pr-h .all{margin-left:auto;font-size:11px;color:var(--ink-3);font-family:var(--f-mono)}
+.ss-proj-row{display:grid;grid-template-columns:130px 1fr;gap:14px;padding:10px 0;border-bottom:1px dashed var(--line-subtle)}
+.ss-proj-row:last-child{border-bottom:none}
+.ss-proj-row .pn{font-size:14px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:8px}
+.ss-proj-row .pn .ct{font-family:var(--f-mono);font-size:10px;color:var(--ink-3);font-weight:400}
+.ss-proj-row .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px}
+.ss-proj-row .stats .st{text-align:center;padding:4px 2px}
+.ss-proj-row .stats .st .n{font-family:var(--f-display);font-size:18px;font-weight:700;color:var(--ink);line-height:1.1}
+.ss-proj-row .stats .st.amber .n{color:var(--amber-deep)}
+.ss-proj-row .stats .st .l{font-size:10px;color:var(--ink-3);margin-top:2px}
+.ss-proj-row .subs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ss-sub{background:var(--paper-warm);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.ss-sub .ttl{font-size:10.5px;font-weight:600;color:var(--ink-2);margin-bottom:5px;display:flex;align-items:center;gap:5px}
+.ss-sub .ttl::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--amber-deep)}
+.ss-sub .val{font-size:13px;font-weight:600;color:var(--ink)}
+.ss-sub .sub{font-size:10px;color:var(--ink-3);margin-top:1px}
+.ss-bar{height:3px;background:var(--line);border-radius:99px;margin-top:5px;overflow:hidden}
+.ss-bar .fill{height:100%;background:var(--amber-deep);border-radius:99px}
+.ss-rv-foot{padding:10px 0 0;border-top:1px dashed var(--line-subtle);font-family:var(--f-mono);font-size:10.5px;color:var(--ink-3);display:flex;justify-content:space-between}
+/* ============ philosophy ============ */
+.philosophy{padding:96px 0;border-bottom:1px solid var(--line)}
+.philo-grid{display:grid;grid-template-columns:1fr 64px 1fr;gap:0;margin-top:48px;align-items:stretch}
+.philo-col{display:flex;flex-direction:column;gap:14px}
+.philo-col-head{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
+.philo-col-head h3{font-size:19px;font-weight:600;font-family:var(--f-display)}
+.philo-col-head .tag{font-family:var(--f-mono);font-size:11px;letter-spacing:.04em;color:var(--ink-3)}
+.philo-col--old .philo-col-head .tag{color:#9a5a3a}
+.philo-col--new .philo-col-head .tag{color:var(--green-deep)}
+.philo-row{
+  display:flex;gap:12px;align-items:flex-start;
+  background:var(--card);border:1.5px solid var(--line-ink);border-radius:var(--radius);
+  padding:15px 17px;
+}
+.philo-col--old .philo-row{border-style:dashed;border-color:var(--line);background:var(--paper-2)}
+.philo-row .ph-idx{font-family:var(--f-mono);font-size:11px;color:var(--ink-3);flex:none;width:22px;padding-top:2px}
+.philo-row .ph-tx{font-size:14px;color:var(--ink-2);line-height:1.65}
+.philo-row .ph-tx b{color:var(--ink);font-weight:600}
+.philo-arrow{display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--ink-3)}
+.philo-arrow svg{width:30px;height:30px;opacity:.55}
+.philo-closure{
+  margin-top:42px;display:flex;gap:16px;align-items:flex-start;
+  background:var(--paper-2);border:1.5px solid var(--line-ink);border-radius:var(--radius-lg);
+  padding:24px 28px;
+}
+.philo-closure .pc-ic{
+  width:42px;height:42px;border-radius:11px;flex:none;display:grid;place-items:center;
+  background:var(--green-soft);color:var(--green-deep);
+}
+.philo-closure .pc-ic svg{width:22px;height:22px}
+.philo-closure p{font-size:15.5px;color:var(--ink);line-height:1.75}
+.philo-closure p b{font-weight:700;font-family:var(--f-body)}
+.philo-closure .pc-em{color:var(--amber-deep);font-weight:600}
+.philo-cta{margin-top:24px;display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--amber-deep);transition:gap .2s}
+.philo-cta:hover{gap:12px}
+/* ============ features ============ */
+.features{padding:96px 0;border-bottom:1px solid var(--line)}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:44px}
+.feat-card{
+  background:var(--card);border:1.5px solid var(--line-ink);border-radius:var(--radius);
+  padding:28px 26px 26px;position:relative;
+  transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;
+}
+.feat-card:hover{transform:translate(-3px,-3px);box-shadow:var(--shadow-hard);border-color:var(--ink)}
+.feat-num{font-family:var(--f-mono);font-size:12px;color:var(--amber-deep);letter-spacing:.08em;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.feat-num::after{content:"";flex:1;height:1px;background:var(--line)}
+.feat-icon{
+  width:44px;height:44px;border-radius:11px;background:var(--green-soft);
+  display:grid;place-items:center;margin-bottom:18px;color:var(--green-deep);font-size:20px;
+}
+.feat-card h3{font-size:19px;margin-bottom:10px}
+.feat-card p{font-size:14px;color:var(--ink-2);line-height:1.75}
+.feat-card p b{color:var(--ink);font-weight:600}
+/* ============ personas ============ */
+.personas{padding:96px 0;border-bottom:1px solid var(--line);background:var(--paper)}
+.persona-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:44px}
+.persona-card{background:var(--card);border:1.5px solid var(--line-ink);border-radius:var(--radius);padding:28px 26px;transition:all .2s ease}
+.persona-card:hover{transform:translate(-3px,-3px);box-shadow:var(--shadow-hard);border-color:var(--ink)}
+.persona-icon{width:48px;height:48px;border-radius:12px;background:var(--amber-muted);display:grid;place-items:center;font-size:22px;margin-bottom:18px}
+.persona-card h3{font-size:19px;margin-bottom:6px}
+.persona-card .role{font-family:var(--f-mono);font-size:11px;color:var(--amber-deep);margin-bottom:14px}
+.persona-card p{font-size:14px;color:var(--ink-2);line-height:1.75;margin-bottom:14px}
+.persona-card .pain{font-size:13px;color:var(--ink-3);padding-top:14px;border-top:1px dashed var(--line);line-height:1.65}
+.persona-card .pain b{color:var(--green-deep);font-weight:600}
+/* ============ loop ============ */
+.loop{padding:96px 0;border-bottom:1px solid var(--line);background:var(--paper-2)}
+.loop-track{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:48px;position:relative}
+.loop-cell{padding:0 18px;position:relative}
+.loop-cell+.loop-cell::before{
+  content:"→";position:absolute;left:-14px;top:44px;
+  font-family:var(--f-display);font-size:22px;color:var(--amber-deep);font-style:italic;
+}
+.loop-badge{
+  width:88px;height:88px;border-radius:50%;border:1.5px solid var(--ink);
+  background:var(--card);display:grid;place-items:center;margin-bottom:20px;
+  font-family:var(--f-display);font-size:30px;font-weight:700;color:var(--green-deep);
+  box-shadow:4px 4px 0 rgba(27,30,35,.12);position:relative;
+}
+.loop-badge .idx{
+  position:absolute;top:-7px;right:-7px;width:26px;height:26px;border-radius:50%;
+  background:var(--amber);border:1.5px solid var(--ink);color:var(--ink);
+  font-family:var(--f-mono);font-size:11px;font-weight:500;display:grid;place-items:center;
+}
+.loop-cell h3{font-size:20px;margin-bottom:8px}
+.loop-cell p{font-size:13.5px;color:var(--ink-2);line-height:1.75}
+.loop-cell .tag{
+  display:inline-block;margin-top:12px;font-family:var(--f-mono);font-size:10.5px;
+  color:var(--green-deep);background:var(--green-soft);border:1px solid rgba(82,82,91,.25);
+  border-radius:99px;padding:3px 10px;
+}
+.loop-closure{
+  display:flex;align-items:center;gap:14px;margin-top:36px;padding:14px 22px;
+  background:var(--card);border:1.5px dashed var(--ink);border-radius:14px;
+  font-family:var(--f-display);font-style:italic;font-size:15px;color:var(--ink-2);line-height:1.6;
+}
+.loop-closure .closure-icon{
+  width:38px;height:38px;border-radius:50%;background:var(--amber);color:var(--ink);
+  display:grid;place-items:center;font-size:22px;flex:none;font-style:normal;
+  border:1.5px solid var(--ink);box-shadow:2px 2px 0 var(--ink);
+}
+.loop-closure b{color:var(--ink);font-style:normal;font-weight:700;font-family:var(--f-body)}
+/* ============ pricing ============ */
+.pricing{padding:96px 0;border-bottom:1px solid var(--line)}
+.pricing-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px;margin-top:44px;align-items:stretch;max-width:880px;margin-left:auto;margin-right:auto}
+.price-card{background:var(--card);border:1.5px solid var(--line-ink);border-radius:var(--radius-lg);padding:32px 28px;position:relative;transition:all .2s ease;display:flex;flex-direction:column;}
+.price-card.rv{transition:opacity .7s ease,transform .3s ease,box-shadow .3s ease}
+.price-card.rv:hover{transform:translate(-3px,-3px);box-shadow:var(--shadow-hard)}
+.price-card.featured{border-color:var(--ink);box-shadow:var(--shadow-soft)}
+.price-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--amber);color:var(--ink);border:1.5px solid var(--ink);font-family:var(--f-mono);font-size:11px;font-weight:600;padding:4px 14px;border-radius:99px}
+.price-name{font-family:var(--f-display);font-size:22px;font-weight:700;margin-bottom:8px}
+.price-desc{font-size:13px;color:var(--ink-3);margin-bottom:20px}
+.price-amount{font-family:var(--f-display);font-size:42px;font-weight:700;margin-bottom:4px}
+.price-amount span{font-size:16px;color:var(--ink-3);font-weight:400;font-family:var(--f-body)}
+.price-note{font-size:12px;color:var(--ink-3);margin-bottom:24px;padding-bottom:24px;border-bottom:1px solid var(--line)}
+.price-features{list-style:none;margin-bottom:28px}
+.price-features li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--ink-2);margin-bottom:12px;line-height:1.5}
+.price-features li::before{content:"✓";color:var(--green);font-weight:700;flex:none;margin-top:1px}
+.price-features li.muted{color:var(--ink-disabled)}
+.price-features li.muted::before{content:"—";color:var(--ink-disabled)}
+.price-card .btn{width:100%;justify-content:center;margin-top:auto;}
+.pricing-note{text-align:center;margin-top:28px;font-size:13px;color:var(--ink-3);font-family:var(--f-mono);padding:14px 20px;background:var(--green-soft);border-radius:12px;border:1px solid rgba(82,82,91,.2)}
+/* ============ testimonials ============ */
+.testimonials{padding:96px 0;border-bottom:1px solid var(--line);background:var(--paper-2)}
+.test-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;margin-top:44px}
+.test-card{background:var(--card);border:1.5px solid var(--line-ink);border-radius:var(--radius);padding:28px 26px;position:relative;transition:all .2s ease}
+.test-card:hover{transform:translate(-3px,-3px);box-shadow:var(--shadow-soft)}
+.test-card::before{content:"”";position:absolute;top:8px;right:20px;font-family:var(--f-display);font-size:60px;color:var(--amber-muted);line-height:1;}
+.test-text{font-size:15px;color:var(--ink);line-height:1.8;margin-bottom:20px;font-style:italic}
+.test-author{display:flex;align-items:center;gap:12px}
+.test-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green-deep));color:#fff;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:16px;flex:none}
+.test-card:nth-child(even) .test-avatar{background:linear-gradient(135deg,var(--amber),var(--amber-deep))}
+.test-info b{display:block;font-size:14px;font-weight:600}
+.test-info small{font-size:12px;color:var(--ink-3)}
+/* ============ faq ============ */
+.faq{padding:96px 0;border-bottom:1px solid var(--line)}
+.faq-list{margin-top:40px;border-top:1.5px solid var(--ink)}
+.faq-item{border-bottom:1.5px solid var(--line-ink)}
+.faq-q{
+  width:100%;display:flex;align-items:center;gap:18px;text-align:left;
+  padding:22px 6px;font-size:16.5px;font-weight:600;font-family:var(--f-display);
+  transition:color .15s;background:transparent;
+}
+.faq-q:hover{color:var(--green-deep)}
+.faq-q .qn{font-family:var(--f-mono);font-size:11.5px;color:var(--amber-deep);font-weight:500;flex:none}
+.faq-q .pm{margin-left:auto;font-family:var(--f-mono);font-size:18px;color:var(--ink-3);transition:transform .25s;flex:none}
+.faq-item.open .pm{transform:rotate(45deg);color:var(--green)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease}
+.faq-a p{padding:0 6px 24px 44px;font-size:14.5px;color:var(--ink-2);line-height:1.8;max-width:760px}
+.faq-a b{color:var(--ink)}
+.faq-a code{font-family:var(--f-mono);font-size:12.5px;background:var(--paper-2);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+/* ============ footer ============ */
+footer{background:#3A3A3A;color:var(--paper);position:relative;overflow:hidden}
+.footer-cta{padding:84px 0 60px;text-align:center;position:relative;z-index:2}
+.footer-cta h2{font-size:clamp(30px,4.4vw,50px);margin-bottom:16px}
+.footer-cta h2 em{font-style:italic;color:var(--amber)}
+.footer-cta p{color:rgba(250,247,241,.65);margin-bottom:32px;font-size:16px}
+.footer-cta .btn-ghost{background:transparent;color:var(--paper);border-color:rgba(250,247,241,.5);box-shadow:4px 4px 0 rgba(0,0,0,.25)}
+.footer-cta .btn-primary{background:var(--amber);color:var(--ink);border-color:var(--ink)}
+.footer-cols{
+  display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:36px;
+  padding:56px 0 44px;border-top:1px solid rgba(250,247,241,.14);position:relative;z-index:2;
+}
+.footer-brand p{font-size:13.5px;color:rgba(250,247,241,.55);margin-top:14px;max-width:260px;line-height:1.8}
+.footer-brand .brand small{border-color:rgba(250,247,241,.25);color:rgba(250,247,241,.5)}
+.footer-col h5{font-family:var(--f-mono);font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:rgba(250,247,241,.45);margin-bottom:16px}
+.footer-col a{display:block;font-size:14px;color:rgba(250,247,241,.75);margin-bottom:10px;transition:color .15s}
+.footer-col a:hover{color:var(--amber)}
+.footer-col a .soon{margin-left:7px;font-family:var(--f-mono);font-size:9px;color:var(--amber);border:1px solid rgba(232,163,61,.5);border-radius:99px;padding:1px 6px}
+.footer-bottom{
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  padding:20px 0;border-top:1px solid rgba(250,247,241,.14);
+  font-family:var(--f-mono);font-size:11.5px;color:rgba(250,247,241,.4);position:relative;z-index:2;
+}
+.footer-bottom .dotsep::before{content:"·";margin-right:16px}
+/* ============ reveal ============ */
+.rv{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.3,1)}
+.rv.in{opacity:1;transform:none}
+/* ============ responsive ============ */
+@media (max-width:1000px){
+  .hero-grid{grid-template-columns:1fr;gap:0}
+  .hero{padding:64px 0 76px}
+  .hero-right{display:none}
+  .feat-grid, .persona-grid{grid-template-columns:repeat(2,1fr)}
+  .price-card.featured{transform:none}
+  .price-card.featured:hover{transform:translate(-3px,-3px)}
+  .loop-track{grid-template-columns:repeat(2,1fr);gap:36px 0}
+  .loop-cell+.loop-cell::before{display:none}
+  .test-grid{grid-template-columns:1fr}
+  .footer-cols{grid-template-columns:1fr 1fr}
+  .philo-grid{grid-template-columns:1fr;gap:18px}
+  .philo-arrow{flex-direction:row;transform:rotate(90deg);margin:2px 0}
+  .philo-closure{flex-direction:column;gap:12px}
+  .ss-cards{grid-template-columns:repeat(2,1fr)}
+  .ss-dl-grid{grid-template-columns:1fr}
+  .ss-wb{grid-template-columns:1fr}
+  .ss-wb-side{display:none}
+  .ss-stats{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:680px){
+  .wrap{padding:0 18px}
+  .nav-links{display:none}
+  .hero h1{font-size:38px}
+  .hero-ctas .btn{width:100%;justify-content:center}
+  .hero-trust{justify-content:flex-start !important}
+  .feat-grid, .persona-grid, .pricing-grid{grid-template-columns:1fr}
+  .loop-track{grid-template-columns:1fr}
+  .footer-cols{grid-template-columns:1fr;gap:28px}
+  .demo-frame-bar span{display:none}
+  .demo-controls .btn{width:100%;justify-content:center}
+  .faq-a p{padding-left:6px}
+  .hero{padding:52px 0 64px}
+  .demo,.features,.personas,.loop,.pricing,.testimonials,.faq,.philosophy{padding:64px 0}
+  .ss-capture-with-sides{grid-template-columns:1fr}
+  .ss-side{display:none}
+  .ss-cards{grid-template-columns:1fr}
+  .ss-proj-row{grid-template-columns:1fr}
+  .ss-proj-row .stats, .ss-proj-row .subs{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<!-- ================= HEADER ================= -->
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#top">
+      <span class="brand-mark"><img src="logo.png" alt="OrbiGet Craft" width="30" height="30"></span>
+      <span class="brand-text">
+        <span style="font-family:var(--f-display);font-weight:700;font-size:19px;letter-spacing:-.01em">OrbiGet Craft <small>v0.9.0-beta</small></span>
+        <span class="brand-slogan">项目驱动的素材与创作工作台</span>
+      </span>
+    </a>
+    <nav class="nav-links">
+      <a href="#demo">交互演示</a>
+      <a href="#features">核心功能</a>
+      <a href="#pricing">使用方案</a>
+      <a href="#faq">常见问题</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-primary" href="https://gitee.com/zkimyes_admin/orbiget-craft-methodology/releases" target="_blank" rel="noopener">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        下载安装包
+      </a>
+    </div>
+  </div>
+</header>
+<!-- ================= HERO ================= -->
+<section class="hero" id="top">
+  <div class="wrap hero-grid">
+    <div class="hero-left">
+      <span class="hero-badge"><span class="dot"></span>本地优先的浏览器创作引擎</span>
+      <h1>让每一次创作都有迹可循，<br>让创作过程本身<em>成为资产</em>。</h1>
+      <p class="hero-sub">OrbiGet Craft 是住在你浏览器里的创作引擎：<strong>网页剪藏与素材采集</strong>、自动<strong>归集入库</strong>、在<strong>工作台创作</strong>、一键<strong>交付</strong>，最后 <strong>AI 辅助复盘</strong>。一套集<strong>素材管理、写作助手、灵感整理</strong>于一体的浏览器扩展。这里的「资产」不只有成品——灵感碎片、随手记、半成品加工，都算。数据默认在你的设备上，<strong>流向由你决定</strong>——留在本地、同步到你自己的存储、发给你的 AI 服务商，都是你的显式选择。</p>
+      <div class="hero-ctas">
+        <a class="btn btn-primary" href="https://gitee.com/zkimyes_admin/orbiget-craft-methodology/releases" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          下载离线安装包
+        </a>
+        <a class="btn btn-ghost" href="https://microsoftedge.microsoft.com/addons/detail/orbiget-craft/jmcajdeiaphbnidhmbcgjmiggbgjihcp" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+          Edge 应用商店
+        </a>
+      </div>
+      <div class="hero-trust">
+        <span><b>✓</b> 无账号即可使用</span><span class="sep">/</span>
+        <span><b>✓</b> SHA-256 日志链</span><span class="sep">/</span>
+        <span><b>✓</b> 无自有服务器 · 数据主权在你</span><span class="sep">/</span>
+        <span><b>Edge</b> 应用商店已上架</span>
+      </div>
+    </div>
+    <div class="hero-right" aria-hidden="true">
+      <div class="hero-preview">
+        <div class="preview-card pc1">
+          <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+          <div class="content">
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="grid">
+              <div class="cell"></div>
+              <div class="cell"></div>
+              <div class="cell"></div>
+            </div>
+          </div>
+        </div>
+        <div class="preview-card pc2">
+          <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+          <div class="content">
+            <div style="font-family:var(--f-display);font-size:15px;font-weight:700;margin-bottom:10px">雨夜、便利店与未完成的小说</div>
+            <div class="article">
+              凌晨一点的便利店，灯永远亮得像白昼。<span class="hl">关东煮的雾气贴在玻璃上</span>，和外面的雨混在一起。我推门进去的时候，店员头也没抬...
+            </div>
+          </div>
+        </div>
+        <div class="preview-card pc3">
+          <div class="log"><span class="check">✓</span> 段落采集成功 <span class="time">23:41</span></div>
+          <div class="log"><span class="check">✓</span> 元数据自动保存 <span class="time">23:41</span></div>
+          <div class="log"><span class="check">✓</span> 日志链验证通过 <span class="time">23:41</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ================= PHILOSOPHY ================= -->
+<section class="philosophy" id="why">
+  <div class="wrap">
+    <div class="rv">
+      <span class="kicker">为什么需要</span>
+      <h2 class="h2">软件开发有工程化，内容创作有什么？</h2>
+      <p class="lede">软件开发沉淀出了一门成熟学科——<b>软件工程</b>：文档、脚本、日志链、交付记录、复盘周报，都被组织成项目的<b>资产</b>。而内容创作至今没有对等的工程化方法论——做产品、做设计、做内容的个人创作者，大多还停在微信收藏夹 + 网盘 + Excel + 脑记忆的手工作坊阶段，过程散落各处、难以追溯与复用。Craft 把软件工程的这套思路，翻译成普通人也能用的轻量流程。</p>
+    </div>
+    <div class="philo-grid">
+      <div class="philo-col philo-col--old">
+        <div class="philo-col-head"><h3>手工作坊式创作</h3><span class="tag">零散 · 凭记忆 · 难追溯</span></div>
+        <div class="philo-row"><span class="ph-idx">01</span><span class="ph-tx">灵感碎片靠<strong>手写便签、手机备忘录</strong>随手记，散在各处，回头找不到。</span></div>
+        <div class="philo-row"><span class="ph-idx">02</span><span class="ph-tx">素材在<strong>微信、网盘、浏览器书签</strong>到处散落，加工时来回倒腾、版本混乱。</span></div>
+        <div class="philo-row"><span class="ph-idx">03</span><span class="ph-tx">交付靠<strong>微信发送或手动打包</strong>，传给谁、传了什么，没有记录。</span></div>
+        <div class="philo-row"><span class="ph-idx">04</span><span class="ph-tx">记录丢给<strong>Excel 手动维护</strong>，格式不一、更新滞后，等于又一份待整理的素材。</span></div>
+        <div class="philo-row"><span class="ph-idx">05</span><span class="ph-tx">复盘基本<strong>靠脑子回想</strong>，节奏、卡点、成长全凭感觉，无法复用。</span></div>
+      </div>
+      <div class="philo-arrow" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+      </div>
+      <div class="philo-col philo-col--new">
+        <div class="philo-col-head"><h3>工程化创作管理</h3><span class="tag">采集 · 串联 · 可复盘</span></div>
+        <div class="philo-row"><span class="ph-idx">01</span><span class="ph-tx">灵感、日志、随手记<strong>一键采集</strong>进统一收件箱，<strong>出处自动留存</strong>。</span></div>
+        <div class="philo-row"><span class="ph-idx">02</span><span class="ph-tx">素材<strong>归入项目</strong>变成原料，随时可检索、可召回，不再到处倒腾。</span></div>
+        <div class="philo-row"><span class="ph-idx">03</span><span class="ph-tx">交付<strong>一键打包并签名记录</strong>，谁、什么版本、何时交付，全程可追溯。</span></div>
+        <div class="philo-row"><span class="ph-idx">04</span><span class="ph-tx">创作轨迹进<strong>SHA-256 日志链</strong>，自动留存，无需手动记账。</span></div>
+        <div class="philo-row"><span class="ph-idx">05</span><span class="ph-tx">AI 辅助<strong>复盘节奏与产出</strong>，结论回流成下一轮灵感——闭环跑起来。</span></div>
+      </div>
+    </div>
+    <div class="philo-closure rv">
+      <span class="pc-ic">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg>
+      </span>
+      <p>我们说的<b>资产</b>，不止是成品——<span class="pc-em">灵感碎片、随手记、半成品加工、日志与交付记录</span>，都是你创作过程里值得被管理的资产。让普通创作者也能用科学、高效的方式，把零散的创作<strong>串成一条可管理的链路</strong>。</p>
+    </div>
+    <a href="#demo" class="philo-cta rv">
+      看30秒自动演示，了解完整流程
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </a>
+  </div>
+</section>
+<!-- ================= DEMO ================= -->
+<section class="demo" id="demo">
+  <div class="wrap">
+    <div class="demo-head rv">
+      <div>
+        <span class="kicker">Auto Demo</span>
+        <h2 class="h2">看一遍就懂：创作怎么被串成一条链。</h2>
+        <p class="lede">下方会自动演示一遍完整工作流：<b>采集灵感</b>（整页 / 划词 / 截图 / 剪贴板 / 粘贴）→ <b>归集</b>整理 → 工作台<b>创作</b> → <b>交付</b>导出 → <b>复盘</b>成长，把零散动作串成一条链。过程中的每一步都会以<b>链式日志</b>自动留痕，无需手动记录。</p>
+      </div>
+    </div>
+    <div class="demo-steps rv" id="stepChips">
+      <span class="step-chip active" data-step="1"><span class="n">01</span><b>采集灵感</b></span>
+      <span class="step-chip" data-step="2"><span class="n">02</span><b>归集</b></span>
+      <span class="step-chip" data-step="3"><span class="n">03</span><b>创作</b></span>
+      <span class="step-chip" data-step="4"><span class="n">04</span><b>交付</b></span>
+      <span class="step-chip" data-step="5"><span class="n">05</span><b>复盘</b></span>
+    </div>
+    <div class="demo-frame rv">
+      <div class="demo-frame-bar">
+        <span class="lamp"></span><strong>Craft 迷你工作台</strong>
+        <span>demo · 数据仅存于此页面</span>
+      </div>
+      <div class="stage-screen active" data-screen="1">
+        <div class="ss-top">
+          <span class="ss-tab on" data-view="web">浏览器采集</span>
+          <span class="ss-sep">·</span>
+          <span class="ss-tab" data-view="screenshot">截图采集</span>
+          <span class="ss-sep">·</span>
+          <span class="ss-tab" data-view="clipboard">剪贴板监听</span>
+          <span class="ss-sep">·</span>
+          <span class="ss-tab" data-view="paste">粘贴监听</span>
+          <span class="ss-end">
+            <span class="ss-dot"></span>
+            <span>night-notes.blog · 城市写作观察</span>
+          </span>
+        </div>
+        <div class="ss-capture ss-capture-with-sides">
+          <aside class="ss-side ss-side-left">
+            <h5>采集源</h5>
+            <div class="ss-source on" data-source="web">
+              <span class="ss-source-ic">🌐</span>
+              <div><b>当前网页</b><small>整页 / 段落划词</small></div>
+            </div>
+            <div class="ss-source" data-source="screenshot">
+              <span class="ss-source-ic">📷</span>
+              <div><b>截图</b><small>区域截屏 / 可视区域</small></div>
+            </div>
+            <div class="ss-source" data-source="clipboard">
+              <span class="ss-source-ic">📋</span>
+              <div><b>剪贴板</b><small>自动监听复制</small></div>
+            </div>
+            <div class="ss-source" data-source="paste">
+              <span class="ss-source-ic">⌘</span>
+              <div><b>粘贴</b><small>Ctrl+V / ⌘+V</small></div>
+            </div>
+          </aside>
+          <div class="ss-capture-main">
+            <div class="ss-capview active" data-view="web">
+              <div class="ss-capbar">
+                <span class="url">night-notes.blog/articles/city-notes/rainy-night</span>
+                <span class="capall got">⬇ 采集整页（含元数据）</span>
+              </div>
+              <article class="ss-article">
+                <div class="src">
+                  <span class="fav">夜</span>
+                  <span class="src-meta">night-notes.blog · 城市写作观察 · 已收录 7 次</span>
+                </div>
+                <h4>雨夜、便利店与未完成的小说</h4>
+                <div class="byline"><span>作者：夜航西飞</span><span>2026-07-18</span><span>阅读 6 min</span></div>
+                <div class="para captured" data-cap="p1">
+                  <p>凌晨一点的便利店，灯永远亮得像白昼。关东煮的雾气贴在玻璃上，和外面的雨混在一起。我推门进去的时候，店员头也没抬，只说了一句："老样子？"——可我明明第一次来。</p>
+                  <span class="ss-cap got">✓ 已收录</span>
+                </div>
+                <div class="para captured" data-cap="p2">
+                  <p>写城市小说的人往往忽略一件事：城市的性格不在地标里，而在这些二十四小时营业的缝隙里。便利店的灯光是一种承诺——无论多晚，总有一个地方收留你和你的半成品句子。</p>
+                  <span class="ss-cap got">✓ 已收录</span>
+                </div>
+                <div class="para captured" data-cap="p3">
+                  <p>我把这段话记在手机的草稿箱里，和另外四十七条开头躺在一起。它们大多永远不会被写完，但每一条都记得那个夜晚的湿度、温度，和收银台扫描枪的"滴"声。</p>
+                  <span class="ss-cap got">✓ 已收录</span>
+                </div>
+                <div class="foot">
+                  <span>采集自动留痕 · 全程本地</span>
+                  <span class="ibcount">采集仅记录日志，归集入列在下一步</span>
+                </div>
+              </article>
+            </div>
+            <div class="ss-capview" data-view="screenshot">
+              <div class="ss-shot-bar">
+                <span class="url">可视区域 · 1280 × 720</span>
+                <span class="capall got">📷 截取可视区域</span>
+              </div>
+              <div class="ss-shot-area">
+                <div class="ss-shot-frame">
+                  <div class="ss-shot-sel"></div>
+                  <span class="ss-shot-hint">拖拽调整选区，或一键截取可视区域</span>
+                </div>
+                <div class="ss-shot-actions">
+                  <span class="ss-shot-tip">截图会自动附带页面 URL 与时间点元数据</span>
+                </div>
+              </div>
+            </div>
+            <div class="ss-capview" data-view="clipboard">
+              <div class="ss-clip-area">
+                <div class="ss-clip-status">
+                  <span class="ss-monitor-dot"></span>
+                  <b>剪贴板监听已开启</b>
+                </div>
+                <p class="ss-clip-desc">当你在浏览器或其他应用里复制文字、链接、图片时，Craft 会自动把它暂存到最近采集列表，并记录来源与时间。</p>
+                <div class="ss-clip-sim">
+                  “城市的性格不在地标里，而在这些二十四小时营业的缝隙里。”
+                </div>
+                <span class="capall got">📋 已监听到复制</span>
+              </div>
+            </div>
+            <div class="ss-capview" data-view="paste">
+              <div class="ss-paste-area">
+                <label>按下 <kbd>Ctrl</kbd>+<kbd>V</kbd> / <kbd>⌘</kbd>+<kbd>V</kbd></label>
+                <div class="paste-mirror">我在凌晨一点的便利店门口停下，雨水把霓虹灯碎成很多个小月亮。</div>
+                <div class="ss-paste-actions">
+                  <span class="ss-shot-tip">粘贴内容同样进入日志链与最近采集</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <aside class="ss-side ss-side-right">
+            <h5>最近采集 <span class="ss-recent-count">0</span></h5>
+            <div class="ss-recent-list"></div>
+            <div class="ss-monitor">
+              <span class="ss-monitor-dot"></span>
+              <span>剪贴板监听：开启</span>
+            </div>
+          </aside>
+        </div>
+      </div>
+      <div class="stage-screen" data-screen="2">
+        <div class="ss-top">
+          <span class="ss-tab on">灵感箱</span>
+          <span class="ss-sep">·</span>
+          <span class="ss-tab">素材库</span>
+          <span class="ss-sep">·</span>
+          <span class="ss-tab">项目库</span>
+          <span class="ss-end">
+            <span class="ss-dot"></span>
+            <span>本页数据仅存于浏览器</span>
+          </span>
+        </div>
+        <div class="ss-inbox">
+          <div class="ss-inbox-h">
+            <h3>灵感箱</h3>
+            <span class="sub">暂存采集灵感，便于归类后再入库</span>
+            <span class="ct">4 条</span>
+          </div>
+          <div class="ss-tabs">
+            <span class="on">全部</span><span>笔记</span><span>图片</span><span>书签</span><span>性能</span>
+          </div>
+          <div class="ss-tools">
+            <input placeholder="搜标题标签、内容、关联项目…" />
+            <button class="go">GO</button>
+            <button class="newproj">＋ 新建项目</button>
+          </div>
+          <div class="ss-cards">
+            <div class="ss-card">
+              <div class="cover cv-1"><span class="bad">图片</span><span class="src">image.aiday</span></div>
+              <div class="lab">草莓汽水 · 写实<a class="from">来自 aiday.image</a></div>
+              <div class="acts"><input class="rename" value="夏日饮品参考" /><button class="proj">→ 夜航笔记</button></div>
+            </div>
+            <div class="ss-card">
+              <div class="cover cv-2"><span class="bad">图片</span><span class="src">aiday.image</span></div>
+              <div class="lab">向日葵女孩 · 风格<a class="from">来自 aiday.image</a></div>
+              <div class="acts"><input class="rename" value="暖色角色参考" /><button class="proj">→ 夜航笔记</button></div>
+            </div>
+            <div class="ss-card">
+              <div class="cover cv-3"><span class="bad">图片</span><span class="src">aiday.image</span></div>
+              <div class="lab">抽象女像 · 色彩<a class="from">来自 aiday.image</a></div>
+              <div class="acts"><input class="rename" value="插画色调参考" /><button class="proj">→ 测试项目</button></div>
+            </div>
+            <div class="ss-card">
+              <div class="cover cv-4"><span class="bad">笔记</span><span class="src">用户速记</span></div>
+              <div class="lab">好字 · 排版灵感<a class="from">来自用户输入</a></div>
+              <div class="acts"><input class="rename" value="封面字形想法" /><button class="proj">→ 夜航笔记</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="stage-screen" data-screen="3">
+        <div class="ss-top">
+          <span class="ss-tab on">file/test</span>
+          <span class="ss-sep">·</span>
+          <span class="ss-tab">● 颜色</span>
+          <span class="ss-sep">·</span>
+          <span class="ss-tab">⏱ 计时</span>
+          <span class="ss-sep">·</span>
+          <span class="ss-tab">sclacdec</span>
+          <span class="ss-end">
+            <span>缓存文件已建立</span>
+          </span>
+        </div>
+        <div class="ss-wb">
+          <aside class="ss-wb-side">
+            <h5>文件 · 9 条</h5>
+            <div class="f folder"><span class="ic">▾</span>夜航笔记</div>
+            <div class="f ind1"><span class="ic">▾</span>untitled-17847329</div>
+            <div class="f ind2">2022-07-30 19:48</div>
+            <div class="f ind1"><span class="ic">▸</span>文集</div>
+            <div class="f ind2">人口文稿</div>
+            <div class="f ind2">原料</div>
+            <div class="f ind2">日拱</div>
+            <div class="f folder"><span class="ic">▸</span>测试项目</div>
+            <div class="f-count"><span>7 篇文章</span><span>·</span><span>3 个文件</span></div>
+          </aside>
+          <div class="ss-wb-main">
+            <div class="logo"><img src="logo.png" alt="OrbiGet Craft" width="48" height="48"></div>
+            <h3>OrbiGet Craft</h3>
+            <p class="sub">在左侧文章树打开或新建文稿，开始写作。</p>
+            <div class="ss-wb-short">
+              <div class="row"><span>打开文稿</span><span class="kbd">名称+文摘</span></div>
+              <div class="row"><span>新建文稿</span><span class="kbd">Ctrl N</span></div>
+              <div class="row"><span>保存文档</span><span class="kbd">Ctrl S</span></div>
+            </div>
+            <button class="newdoc">✚ 新建文稿</button>
+            <p class="tip">中间区为空，或尚可以启动器打开新资源。</p>
+          </div>
+        </div>
+      </div>
+      <div class="stage-screen" data-screen="4">
+        <div class="ss-top">
+          <span class="ss-tab on">文件</span>
+          <span class="ss-sep">·</span>
+          <span class="ss-tab on">交付</span>
+          <span class="ss-sep">·</span>
+          <span class="ss-tab">记录信息</span>
+          <span class="ss-sep">·</span>
+          <span class="ss-tab">应用场景</span>
+          <span class="ss-end">
+            <span>交付中 · 夜航笔记 · 2026/07/24</span>
+          </span>
+        </div>
+        <div class="ss-dl">
+          <div class="ss-dl-h">
+            <h3>交付 · 夜航笔记</h3>
+            <span class="sub">选定文章为 Markdown 文件集，并进行 .zip 压缩。</span>
+          </div>
+          <div class="ss-dl-grid">
+            <div>
+              <div class="ss-fc">
+                <div class="lab"><span class="badge">①</span>内容源<span class="st u">未选择</span></div>
+                <div class="fld"><span class="nm">交付对象</span><span class="pill dd">已选 0 章</span></div>
+                <div class="fld"><span class="nm">文件集</span><span class="pill act dd">Markdown 文件集</span></div>
+              </div>
+              <div class="ss-fc">
+                <div class="lab"><span class="badge">②</span>归档加工<span class="st c">已配置</span></div>
+                <div class="fld"><span class="nm">交付范围</span><span class="pill act">● 整篇</span><span class="pill">○ 选中段落</span></div>
+                <div class="fld"><span class="nm">输出格式</span><span class="pill dd">Markdown 文件集</span></div>
+                <div class="fld"><span class="nm">版本号</span><input class="ver" value="v0.9.0-beta" /><span class="chk on"></span><span style="font-size:11.5px;color:var(--ink-2)">压缩为 zip</span></div>
+                <div class="hint">敏感代码、ingest 文件，只写入交付记录。</div>
+              </div>
+              <div class="ss-fc">
+                <div class="lab"><span class="badge">③</span>记录信息（选填）<span class="st o">进行中</span></div>
+                <input class="input" value="默认从载入词条名" placeholder="交付标题" />
+                <input class="input" value="客户, 合作方" placeholder="交付标签 (选填)" />
+                <input class="input" value="例如：运输给客户评审，仅内部传输" placeholder="备注 (选填)" />
+                <span class="more">更多选项</span>
+                <div class="pack-row">
+                  <span class="pack-path">导出过程：夜航笔记/imports/</span>
+                  <button class="btn-pack">▣ 打包交付</button>
+                </div>
+              </div>
+            </div>
+            <aside class="ss-sig">
+              <div class="ic">🔏</div>
+              <h4>储存过程签名</h4>
+              <p>完成一次交付后，记录全部产出，便于追溯每次交付的作品版本。</p>
+            </aside>
+          </div>
+        </div>
+      </div>
+      <div class="stage-screen" data-screen="5">
+        <div class="ss-top">
+          <span class="ss-tab on">复盘</span>
+          <span class="ss-sep">·</span>
+          <span class="ss-tab">项目库</span>
+          <span class="ss-sep">·</span>
+          <span class="ss-tab">工作台</span>
+          <span class="ss-sep">·</span>
+          <span class="ss-tab">灵感箱</span>
+          <span class="ss-end">
+            <span>最近 7 天</span>
+          </span>
+        </div>
+        <div class="ss-rv">
+          <div class="ss-rv-h">
+            <h3>复盘</h3>
+            <span class="sub">复盘过往节奏，看待照料生产和创作阶段。</span>
+          </div>
+          <div class="ss-stats">
+            <div class="ss-st"><div class="ic">📁</div><div><div class="num">2</div><div class="lbl">启动项目</div></div></div>
+            <div class="ss-st"><div class="ic">📥</div><div><div class="num">27</div><div class="lbl">本地新增</div></div></div>
+            <div class="ss-st"><div class="ic">✋</div><div><div class="num">0</div><div class="lbl">手动复盘</div></div></div>
+            <div class="ss-st"><div class="ic">✏️</div><div><div class="num">24</div><div class="lbl">本地创造</div></div></div>
+          </div>
+          <div class="ss-pr">
+            <div class="ss-pr-h">
+              <h4>项目复盘</h4>
+              <span class="all">当前项目 夜航笔记</span>
+            </div>
+            <div class="ss-proj-row">
+              <div class="pn">1 夜航笔记<span class="ct">9 素材 · 3 素材</span></div>
+              <div>
+                <div class="stats">
+                  <div class="st"><div class="n">13</div><div class="l">7天创造</div></div>
+                  <div class="st"><div class="n">9</div><div class="l">素材</div></div>
+                  <div class="st"><div class="n">0</div><div class="l">已交付</div></div>
+                  <div class="st amber"><div class="n">4</div><div class="l">反馈数</div></div>
+                </div>
+                <div class="subs">
+                  <div class="ss-sub">
+                    <div class="ttl">势头</div>
+                    <div class="val">素材行动趋势 <span style="float:right">0%</span></div>
+                    <div class="bar"><div class="fill" style="width:0%"></div></div>
+                    <div class="sub" style="margin-top:4px">采集-时间趋势 / 入库条数 0</div>
+                  </div>
+                  <div class="ss-sub">
+                    <div class="ttl">节奏</div>
+                    <div class="val">7 天</div>
+                    <div class="sub">常驻周期</div>
+                    <div class="bar"><div class="fill" style="width:30%"></div></div>
+                  </div>
+                  <div class="ss-sub">
+                    <div class="ttl">交付</div>
+                    <div class="val">最近节点</div>
+                    <div class="sub" style="text-align:right">8月11日 08:00</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="ss-proj-row">
+              <div class="pn">2 测试项目<span class="ct">3 素材 · 1 素材</span></div>
+              <div>
+                <div class="stats">
+                  <div class="st"><div class="n">14</div><div class="l">7天创造</div></div>
+                  <div class="st"><div class="n">12</div><div class="l">素材</div></div>
+                  <div class="st"><div class="n">1</div><div class="l">已交付</div></div>
+                  <div class="st"><div class="n">2</div><div class="l">反馈数</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ss-rv-foot">
+            <span>本节统计最近 7 天的项目节奏，正反馈复盘整理。</span>
+            <span>2026/07/24 · 本地生成</span>
+          </div>
+        </div>
+      </div>
+      <div class="demo-controls simple auto-hint">
+        <span class="ctrl-msg"><span class="auto-dot"></span>自动循环演示中 · 滚走即暂停，回到此区会重新播放</span>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ================= FEATURES ================= -->
+<section class="features" id="features">
+  <div class="wrap">
+    <div class="rv">
+      <span class="kicker">核心能力</span>
+      <h2 class="h2">从采集到复盘，一条链路走完。</h2>
+      <p class="lede">Craft 不是又一个写作工具，写作只是它的第一个场景。<b>采集灵感 → 归集整理 → 工作台创作 → 一键交付 → AI 复盘</b>，每一环都为「记录过程、复盘成果」服务，帮你把零散的创作动作变成可积累的资产。</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card rv">
+        <div class="feat-num">01</div>
+        <div class="feat-icon">⬇️</div>
+        <h3>一键采集灵感</h3>
+        <p>右键、划词、剪贴板、截图，四种入口随手收。<b>自动抓取 OG / JSON-LD / citation 元数据</b>，图片保留EXIF信息——素材从来不怕找不到出处。</p>
+      </div>
+      <div class="feat-card rv">
+        <div class="feat-num">02</div>
+        <div class="feat-icon">📥</div>
+        <h3>智能归集入库</h3>
+        <p>采集的碎片先进<b>收集箱</b>，再按来源、主题自动打标签、结构化<b>入库</b>。归集不是堆文件夹，而是让每条素材随时可被检索、被召回。</p>
+      </div>
+      <div class="feat-card rv">
+        <div class="feat-num">03</div>
+        <div class="feat-icon">✍️</div>
+        <h3>场景化工作台</h3>
+        <p>写作是<b>第一个内置场景</b>（小说 / 文章 / 文案），短剧、长文工作台各有独立布局。外壳不变，中间区随场景而变——每种创作都有自己的工作方法。</p>
+      </div>
+      <div class="feat-card rv">
+        <div class="feat-num">04</div>
+        <div class="feat-icon">📤</div>
+        <h3>规范交付导出</h3>
+        <p>Markdown、PDF、压缩包，一键导出。交付时自动记录版本、接收方、时间戳，每一次交付都可追溯。创作成果随时可以离开工具——你的文字属于你自己。</p>
+      </div>
+      <div class="feat-card rv">
+        <div class="feat-num">05</div>
+        <div class="feat-icon">✨</div>
+        <h3>AI 辅助复盘</h3>
+        <p>Agent 读你采集的素材和写下的字，做复盘、探索、答疑。<b>确定的动作用按钮，不确定的方向用对话</b>——采用 BYOK 模式（自带 API Key），你在设置页配置自己的大模型 Key（OpenAI / DeepSeek / 通义千问等），调用费用直接付给模型服务商，Craft 不收取任何 AI 相关费用。</p>
+      </div>
+      <div class="feat-card rv">
+        <div class="feat-num">06</div>
+        <div class="feat-icon">🔒</div>
+        <h3>本地优先+日志链</h3>
+        <p>IndexedDB 作真相源，项目里的 <b>.obit 快照自包含、可迁移</b>；每条日志 SHA-256 链式自验证。任何篡改都会让日志链断裂，过程真实可追溯。</p>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ================= PERSONAS ================= -->
+<section class="personas" id="personas">
+  <div class="wrap">
+    <div class="rv">
+      <span class="kicker">适合人群</span>
+      <h2 class="h2">为认真对待创作的人设计。</h2>
+      <p class="lede">无论你是写作者、设计师还是独立开发者，只要你在持续产出内容，就需要一个能管理过程、沉淀资产的工具。</p>
+    </div>
+    <div class="persona-grid">
+      <div class="persona-card rv">
+        <div class="persona-icon">📝</div>
+        <h3>写作者 / 内容创作者</h3>
+        <div class="role">Writer · Content Creator</div>
+        <p>写小说、公众号、专栏、脚本的你，需要收集零散灵感、管理写作素材、追踪文稿版本，最后统一导出交付。</p>
+        <div class="pain">不再让灵感死在备忘录里，<b>从收集到成稿全链路可追溯</b>，AI帮你复盘写作节奏。</div>
+      </div>
+      <div class="persona-card rv">
+        <div class="persona-icon">🎨</div>
+        <h3>设计师 / 创意工作者</h3>
+        <div class="role">Designer · Creative</div>
+        <p>做视觉、品牌、UI设计的你，需要收集参考图、整理情绪板、记录迭代过程、交付源文件给客户。</p>
+        <div class="pain">告别散落在各处的参考图，<b>每个项目的参考、过程、交付记录统一管理</b>，找素材不用翻遍聊天记录。</div>
+      </div>
+      <div class="persona-card rv">
+        <div class="persona-icon">💻</div>
+        <h3>独立开发者 / 产品人</h3>
+        <div class="role">Indie Dev · Product Maker</div>
+        <p>做产品、写文档、输出技术内容的你，需要收集竞品参考、记录产品迭代、整理文档版本、输出交付物。</p>
+        <div class="pain">像管理代码一样管理你的内容资产，<b>版本可追溯、过程可复盘、资产可迁移</b>，不用担心平台锁死。</div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ================= LOOP ================= -->
+<section class="loop" id="loop">
+  <div class="wrap">
+    <div class="rv">
+      <span class="kicker">一体化闭环</span>
+      <h2 class="h2">你可以先收集灵感再归入项目，也可以先定义项目再去找灵感——两条路，同一个环。</h2>
+      <p class="lede">灵感卡在收集箱里落灰没有意义。Craft 的闭环就是让它<b>转起来</b>：收集到碎片 → 归进项目变成原料 → 在工作台上加工成稿子 → 复盘看清节奏和方向。每条复盘结论又可以回流成下一轮的灵感收集。而这一切——采集、归集、创作、交付、复盘——<b>全部在浏览器里完成</b>，不需要切换工具。</p>
+    </div>
+    <div class="loop-track">
+      <div class="loop-cell rv">
+        <div class="loop-badge">收<span class="idx">1</span></div>
+        <h3>收集灵感</h3>
+        <p>网页、生活、随手记——右键划词、整页采集、截图、剪贴板、手填。先进收集箱，等一个归入项目的机会。</p>
+        <span class="tag">采集入库 · 碎片</span>
+      </div>
+      <div class="loop-cell rv">
+        <div class="loop-badge">归<span class="idx">2</span></div>
+        <h3>归入项目</h3>
+        <p>选场景、定项目，把碎片从收集箱整理入库——也可以反过来：<b>先建好项目，再定向去找灵感</b>直接丢进去加工。两条路都能跑。</p>
+        <span class="tag">场景 · 项目 · 归集</span>
+      </div>
+      <div class="loop-cell rv">
+        <div class="loop-badge">创<span class="idx">3</span></div>
+        <h3>创作加工</h3>
+        <p>原料进了项目，在工作台上变成稿子。写作、短剧、文案——<b>每个场景有自己的布局</b>，外壳不变，中间区随创作方法而变。</p>
+        <span class="tag">工作台 · 文稿树 · 场景</span>
+      </div>
+      <div class="loop-cell rv">
+        <div class="loop-badge">悟<span class="idx">4</span></div>
+        <h3>复盘成长</h3>
+        <p>Agent 读你这周写的一切——节奏、势头、卡点。复盘结论<b>回流进收集箱</b>，成为下一轮的灵感——避免空有收集而没有产出。</p>
+        <span class="tag">Agent · 复盘 · 复用</span>
+      </div>
+    </div>
+    <div class="loop-closure rv">
+      <span class="closure-icon">↺</span>
+      <span class="closure-text"><b>一体化</b>：采集、归集、创作、交付、复盘——全在浏览器内完成，无需切换工具。<b>闭环</b>：收集灵感 → 归入项目 → 创作 → 复盘 → 复盘结论回流成新灵感。</span>
+    </div>
+  </div>
+</section>
+<!-- ================= PRICING ================= -->
+<section class="pricing" id="pricing">
+  <div class="wrap">
+    <div class="rv">
+      <span class="kicker">使用方案</span>
+      <h2 class="h2">核心能力永久免费，创作上限由你决定。</h2>
+      <p class="lede">Craft 把创作过程变成资产：碎片沉淀、多项目复用、Agent 越用越准、日志链可验证。这些能力是<b>活的</b>——采集、存储流转、Agent 与复盘，每个方向都在持续打磨，新场景和新工作流也在不断加入。因此我们这样定位：核心能力（采集、归集、创作、交付、复盘）<b>永久免费</b>，免费版提供 3 个活跃项目槽位，足够你专注当下最重要的创作；<b>Creator 版 ¥139/年</b>解锁无限项目——这意味着 Agent 能同时感知你所有项目的上下文，在不同创作之间建立关联，给你更完整的辅助和复盘。简单说：免费版让你用起来，Creator 版让你用得更深。</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card rv">
+        <div class="price-name">Free</div>
+        <div class="price-desc">3 个活跃项目，专注当下最重要的创作</div>
+        <div class="price-amount">¥0 <span>/ 永久免费</span></div>
+        <div class="price-note">无广告 · 核心能力全开放 · 3 个活跃项目</div>
+        <ul class="price-features">
+          <li>无限素材采集与灵感箱</li>
+          <li>3 个活跃创作项目（归档即可释放槽位）</li>
+          <li>全场景工作台（写作 / 短剧 / 设计）</li>
+          <li>Markdown / PDF / Epub / 压缩包全格式导出</li>
+          <li>SHA-256 日志链本地验证</li>
+          <li>BYOK 模式 AI 复盘与辅助创作（自带 Key 无次数限制）</li>
+          <li>本地快照备份与跨设备迁移</li>
+        </ul>
+        <a class="btn btn-primary" href="https://gitee.com/zkimyes_admin/orbiget-craft-methodology/releases" target="_blank" rel="noopener">免费下载使用</a>
+      </div>
+      <div class="price-card featured rv">
+        <div class="price-name">Creator</div>
+        <div class="price-desc">Agent 看到你全部创作上下文</div>
+        <div class="price-amount">¥139 <span>/ 年</span></div>
+        <div class="price-note">公测期间可申请测试 License，提前完整体验</div>
+        <ul class="price-features">
+          <li>无限创作项目，不受 3 个槽位限制</li>
+          <li>Agent 可感知全部项目上下文，跨项目关联素材与灵感</li>
+          <li>复盘覆盖完整创作轨迹，而非仅活跃项目</li>
+          <li>新场景、新能力优先开放</li>
+          <li>公测期开始使用 → 正式版锁定首发价</li>
+        </ul>
+        <a class="btn btn-primary" href="https://gitee.com/zkimyes_admin/orbiget-craft-methodology/releases" target="_blank" rel="noopener">免费下载 · 公测期测试 License 开放申请</a>
+      </div>
+    </div>
+    <div class="pricing-note rv">
+      公测期：全部功能免费体验，申请测试 License 可提前使用 Creator 无限项目 · BYOK 模式 AI 调用无次数限制 · Craft 不收取任何 AI 服务费用
+    </div>
+  </div>
+</section>
+<!-- ================= TESTIMONIALS（隐藏中：等公测后放真实用户反馈再恢复，去掉 hidden 即可） ================= -->
+<section class="testimonials" id="testimonials" hidden>
+  <div class="wrap">
+    <div class="rv">
+      <span class="kicker">早期用户说</span>
+      <h2 class="h2">他们已经在用Craft管理创作过程。</h2>
+    </div>
+    <div class="test-grid">
+      <div class="test-card rv">
+        <p class="test-text">之前写小说找参考资料要翻遍浏览器收藏夹和微信文件，现在看到好的内容点一下就收进来，自动归类到项目里，写的时候直接拖进文稿，太省心了。</p>
+        <div class="test-author">
+          <div class="test-avatar">林</div>
+          <div class="test-info">
+            <b>林夜航</b>
+            <small>悬疑小说作者 · 豆瓣阅读签约</small>
+          </div>
+        </div>
+      </div>
+      <div class="test-card rv">
+        <p class="test-text">作为设计师我最烦的就是找参考图，之前散落在Pinterest、花瓣、电脑文件夹里，现在所有参考都按项目收好，交付给客户的时候连参考过程都能一起打包，非常专业。</p>
+        <div class="test-author">
+          <div class="test-avatar">阿</div>
+          <div class="test-info">
+            <b>阿凯</b>
+            <small>独立品牌设计师</small>
+          </div>
+        </div>
+      </div>
+      <div class="test-card rv">
+        <p class="test-text">本地优先这点太戳我了，现在什么工具都要云端同步，我就想我的稿子完完全全在自己电脑上，日志链的设计让我很放心，知道每一步修改都有记录。</p>
+        <div class="test-author">
+          <div class="test-avatar">老</div>
+          <div class="test-info">
+            <b>老周</b>
+            <small>独立开发者 · 技术博主</small>
+          </div>
+        </div>
+      </div>
+      <div class="test-card rv">
+        <p class="test-text">AI复盘功能太懂创作者了，每周帮我统计这周写了多少、什么时候效率最高、哪些素材放了很久没用，比我自己记流水账清楚多了，真的像个创作助理。</p>
+        <div class="test-author">
+          <div class="test-avatar">小</div>
+          <div class="test-info">
+            <b>小夏</b>
+            <small>公众号作者 · 职场内容创作者</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ================= FAQ ================= -->
+<section class="faq" id="faq">
+  <div class="wrap">
+    <div class="rv">
+      <span class="kicker">FAQ</span>
+      <h2 class="h2">常见问题。</h2>
+    </div>
+    <div class="faq-list rv">
+      <div class="faq-item">
+        <button class="faq-q"><span class="qn">Q1</span>我的数据存在哪里？会被上传吗？<span class="pm">+</span></button>
+        <div class="faq-a"><p>运行时数据存在浏览器的 <b>IndexedDB</b>，项目快照写入<b>你自己授权的工作区文件夹</b>（通过 File System Access API）。Craft 没有自己的服务器——素材、文稿、日志默认全部留在你的设备上，流向由你决定：只有在你主动调用 AI 时，相关内容才会发给你选择的模型服务商（见 Q3）。换电脑也不用重新开始：你的全部项目就存放在自己电脑的一个文件夹里，跟普通文件一样，想备份想带走都随你——网盘、U 盘、移动硬盘都可以。到了新电脑再选一次这个文件夹，所有项目、素材、创作记录原样回来。</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q"><span class="qn">Q2</span>还没上架应用商店，怎么安装？<span class="pm">+</span></button>
+        <div class="faq-a"><p>三步：① 从 <b>Releases 页</b>下载离线安装包并解压；② 浏览器地址栏打开 <code>chrome://extensions</code>，开启右上角「开发者模式」；③ 点「加载已解压的扩展程序」，选中解压目录即可。支持 Chrome 114+ 及 Edge 等 Chromium 内核浏览器，上架后可自动更新。</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q"><span class="qn">Q3</span>AI 功能怎么收费？要联网吗？<span class="pm">+</span></button>
+        <div class="faq-a"><p>AI 功能采用 <b>BYOK（Bring Your Own Key）模式</b>：你需要在设置页配置自己的大模型 API Key（支持 OpenAI、Anthropic、DeepSeek、通义千问等主流模型），AI 调用直接在你的设备与模型服务商之间建立连接。<b>Craft 不提供代理服务，不收取任何 AI 费用</b>——你按模型服务商的定价付费，用多少花多少。仅调用 AI 时需要联网，其余所有功能完全离线可用。</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q"><span class="qn">Q4</span>和笔记软件、写作软件有什么区别？<span class="pm">+</span></button>
+        <div class="faq-a"><p>笔记软件存「结果」，写作软件管「当下」，而 Craft 记录「<b>过程</b>」。每条素材的出处、每次修改的痕迹都进入可验证的日志链——三个月后回看，你不仅能看到成品，还能复盘它是怎么一步步长出来的，哪些灵感被用了，哪些被浪费了。</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q"><span class="qn">Q5</span>离线安装包安全吗？如何校验？<span class="pm">+</span></button>
+        <div class="faq-a"><p>安装包由源码直接构建，扩展申请的全部权限列在 manifest 里（存储、右键菜单、剪贴板等采集必需项），没有任何隐藏的网络回传。每个 Release 都会附带 SHA256 校验值，你可以下载后自行校验文件完整性。</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q"><span class="qn">Q6</span>目前有付费版本吗？后续会怎么收费？<span class="pm">+</span></button>
+        <div class="faq-a"><p>核心能力<b>永久免费</b>：无限素材采集、全场景工作台、所有导出格式、本地日志链验证、BYOK AI 调用，全部免费开放。免费档提供 <b>3 个活跃创作项目</b>，足够专注当下最重要的创作；<b>Creator 版（¥139/年）</b>解锁无限项目——这意味着 Agent 能同时感知你所有项目的上下文，在不同创作之间建立关联，复盘也覆盖完整创作轨迹而非仅活跃项目。公测期间可申请测试 License 免费体验，公测期开始使用 → 正式版锁定首发价。</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q"><span class="qn">Q7</span>和网页剪藏插件、浏览器收藏夹有什么区别？<span class="pm">+</span></button>
+        <div class="faq-a"><p>书签和普通剪藏插件只帮你<b>“存下来”</b>——存完就散落在收藏夹里，再难被找到和使用。Craft 做的是闭环：<b>网页剪藏自动归集入库</b>，按来源、标签智能整理；素材可以直接拖进<b>创作工作台</b>变成文章、文稿的起点；创作全过程进入<b>日志链</b>，AI 复盘帮你把素材变成产出。从“采集”到“产出”一条链路，而不是止步于收藏。</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="wrap footer-cta">
+    <h2>下一次动笔之前，<br>先把<em>过程</em>装进口袋。</h2>
+    <p>下载离线包，三分钟装好。你的第一条创作日志，今晚就可以入链。</p>
+    <div class="hero-ctas">
+      <a class="btn btn-primary" href="https://gitee.com/zkimyes_admin/orbiget-craft-methodology/releases" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        下载离线安装包
+      </a>
+      <a class="btn btn-ghost" href="https://microsoftedge.microsoft.com/addons/detail/orbiget-craft/jmcajdeiaphbnidhmbcgjmiggbgjihcp" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+        Edge 应用商店
+      </a>
+    </div>
+  </div>
+  <div class="wrap footer-cols">
+    <div class="footer-brand">
+      <a class="brand" href="#top" style="color:var(--paper)">
+        <span class="brand-mark"><img src="logo.png" alt="OrbiGet Craft" width="30" height="30"></span>
+      <span class="brand-text">
+        <span style="font-family:var(--f-display);font-weight:700;font-size:19px;letter-spacing:-.01em">OrbiGet Craft <small>v0.9.0-beta</small></span>
+        <span class="brand-slogan">项目驱动的素材与创作工作台</span>
+      </span>
+    </a>
+      <p>住在浏览器里的创作引擎。记录创作过程，复盘创作成果——本地优先，安心创作。</p>
+    </div>
+    <div class="footer-col">
+      <h5>产品</h5>
+      <a href="#demo">交互演示</a>
+      <a href="#features">核心功能</a>
+      <a href="#pricing">使用方案</a>
+      <a href="#faq">常见问题</a>
+    </div>
+    <div class="footer-col">
+      <h5>资源</h5>
+      <a href="https://github.com/twang4463-commits/orbiget-craft" target="_blank" rel="noopener">GitHub 仓库 · 开源审计</a>
+      <a href="https://gitee.com/zkimyes_admin/orbiget-craft-methodology" target="_blank" rel="noopener">Gitee 镜像 · 开源审计</a>
+      <a href="https://gitee.com/zkimyes_admin/orbiget-craft-methodology/releases" target="_blank" rel="noopener">Releases · 离线包</a>
+      <a href="#" class="is-disabled" onclick="return false">使用文档<span class="soon">建设中</span></a>
+      <a href="privacy.html">隐私政策</a>
+    </div>
+  </div>
+  <div class="wrap footer-bottom">
+    <span>© 2026 OrbiGet Craft</span>
+    <span class="dotsep">本地优先 · 日志链可验证</span>
+    <span class="dotsep">Made with ❤️ for creators</span>
+  </div>
+</footer>
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s);
+const $$=s=>Array.from(document.querySelectorAll(s));
+const state={stage:1,autoplay:false};
+function setStage(n){
+  n=Math.max(1,Math.min(5,n));
+  state.stage=n;
+  $$('#stepChips .step-chip').forEach(chip=>{
+    const s=+chip.dataset.step;
+    chip.classList.toggle('done',s<n);
+    chip.classList.toggle('active',s===n);
+  });
+  $$('.stage-screen').forEach(sc=>{
+    sc.classList.toggle('active',+sc.dataset.screen===n);
+  });
+}
+const now=()=>new Date().toLocaleTimeString('zh-CN',{hour12:false});
+const recentList=document.querySelector('.ss-recent-list');
+const recentCount=document.querySelector('.ss-recent-count');
+const recentItems=[];
+function addRecent(type,label){
+  recentItems.push({type,label,t:now()});
+  if(recentCount)recentCount.textContent=recentItems.length;
+  const div=document.createElement('div');
+  div.className='ss-recent-item autoin';
+  const typeLabel={web:'网页',paragraph:'段落',screenshot:'截图',clipboard:'剪贴板',paste:'粘贴'}[type]||type;
+  div.innerHTML='<div class="rt">'+now()+' · '+typeLabel+'</div><div class="rl">'+label+'<span>✓</span></div>';
+  if(recentList){recentList.appendChild(div);recentList.scrollTop=recentList.scrollHeight;}
+}
+function setCaptureSource(src){
+  $$('.ss-source').forEach(s=>s.classList.toggle('on',s.dataset.source===src));
+  $$('.ss-capview').forEach(v=>v.classList.toggle('active',v.dataset.view===src));
+  $$('.ss-top .ss-tab').forEach(t=>t.classList.toggle('on',t.dataset.view===src));
+}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const CAPTURE_SEQ=[
+  {src:'web',type:'web',label:'《雨夜、便利店与未完成的小说》+ 12 项元数据'},
+  {src:'web',type:'paragraph',label:'段落 ① "凌晨一点的便利店"'},
+  {src:'web',type:'paragraph',label:'段落 ② "城市的性格在缝隙里"'},
+  {src:'screenshot',type:'screenshot',label:'可视区域截图 1280×720 · night-notes.blog'},
+  {src:'clipboard',type:'clipboard',label:'复制文本 · "城市的性格不在地标里…"'},
+  {src:'paste',type:'paste',label:'我在凌晨一点的便利店门口停下…'},
+];
+async function runCaptureStage(){
+  setStage(1);
+  setCaptureSource('web');
+  recentItems.length=0;
+  if(recentList)recentList.innerHTML='';
+  if(recentCount)recentCount.textContent='0';
+  await sleep(700);
+  for(const c of CAPTURE_SEQ){
+    setCaptureSource(c.src);
+    addRecent(c.type,c.label);
+    await sleep(950);
+  }
+}
+async function playCycle(){
+  await runCaptureStage();
+  setStage(2);await sleep(3000);
+  setStage(3);await sleep(3000);
+  setStage(4);await sleep(3000);
+  setStage(5);await sleep(3000);
+  await sleep(2600);
+}
+let running=false;
+async function loop(){
+  if(running)return;
+  running=true;
+  while(state.autoplay){
+    await playCycle();
+    await sleep(400);
+  }
+  running=false;
+}
+function startAuto(){
+  const demo=$('.demo');
+  if(demo)demo.classList.add('auto');
+  if(state.autoplay)return;
+  state.autoplay=true;
+  loop();
+}
+function stopAuto(){
+  state.autoplay=false;
+  const demo=$('.demo');
+  if(demo)demo.classList.remove('auto');
+}
+const demoEl=document.querySelector('.demo');
+if(demoEl&&'IntersectionObserver' in window){
+  const io=new IntersectionObserver(entries=>{
+    entries.forEach(en=>{
+      if(en.isIntersecting)startAuto();
+      else stopAuto();
+    });
+  },{threshold:0.25});
+  io.observe(demoEl);
+}else{
+  startAuto();
+}
+setStage(1);
+setCaptureSource('web');
+$$('.faq-item').forEach(item=>{
+  const q=item.querySelector('.faq-q'),a=item.querySelector('.faq-a');
+  q.addEventListener('click',()=>{
+    const open=item.classList.contains('open');
+    $$('.faq-item.open').forEach(o=>{o.classList.remove('open');o.querySelector('.faq-a').style.maxHeight='0';});
+    if(!open){item.classList.add('open');a.style.maxHeight=a.scrollHeight+'px';}
+  });
+});
+const io=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});
+},{threshold:.12,rootMargin:'0px 0px -40px 0px'});
+$$('.rv').forEach((el,i)=>{
+  el.style.transitionDelay=(i%5)*60+'ms';
+  const rect=el.getBoundingClientRect();
+  if(rect.top < window.innerHeight && rect.bottom > 0){el.classList.add('in');}
+  else{io.observe(el);}
+});
+document.querySelectorAll('a[href^="#"]').forEach(anchor=>{
+  anchor.addEventListener('click',function(e){
+    const target=document.querySelector(this.getAttribute('href'));
+    if(target){
+      e.preventDefault();
+      target.scrollIntoView({behavior:'smooth'});
+    }
+  });
+});
+})();
+</script>
+</body>
+</html>
