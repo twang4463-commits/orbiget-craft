@@ -521,6 +521,12 @@ header{
 .test-card:nth-child(even) .test-avatar{background:linear-gradient(135deg,var(--amber),var(--amber-deep))}
 .test-info b{display:block;font-size:14px;font-weight:600}
 .test-info small{font-size:12px;color:var(--ink-3)}
+/* ============ install（安装指引） ============ */
+.install{padding:96px 0;border-bottom:1px solid var(--line)}
+.install-ways{display:flex;gap:14px;flex-wrap:wrap;margin-top:28px}
+.install-steps{margin-top:26px}
+.install-steps code{font-family:var(--f-mono);font-size:12.5px;background:var(--paper-2);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.install-note{margin-top:26px;text-align:left}
 /* ============ faq ============ */
 .faq{padding:96px 0;border-bottom:1px solid var(--line)}
 .faq-list{margin-top:40px;border-top:1.5px solid var(--ink)}
@@ -625,7 +631,7 @@ footer{background:#3A3A3A;color:var(--paper);position:relative;overflow:hidden}
   .demo-frame-bar span{display:none}  .demo-controls .btn{width:100%;justify-content:center}
   .faq-a p{padding-left:6px}
   .hero{padding:52px 0 64px}
-  .demo,.features,.personas,.loop,.pricing,.testimonials,.faq,.philosophy{padding:64px 0}
+  .demo,.features,.personas,.loop,.pricing,.testimonials,.faq,.philosophy,.install{padding:64px 0}
   .ss-capture-with-sides{grid-template-columns:1fr}
   .ss-side{display:none}
   .ss-cards{grid-template-columns:1fr}
@@ -649,6 +655,7 @@ footer{background:#3A3A3A;color:var(--paper);position:relative;overflow:hidden}
       <a href="#demo">交互演示</a>
       <a href="#features">核心功能</a>
       <a href="#pricing">使用方案</a>
+      <a href="#install">安装指引</a>
       <a href="#faq">常见问题</a>
     </nav>
     <div class="nav-cta">
@@ -1335,6 +1342,49 @@ footer{background:#3A3A3A;color:var(--paper);position:relative;overflow:hidden}
     </div>
   </div>
 </section>
+<!-- ================= INSTALL（安装指引） ================= -->
+<section class="install" id="install">
+  <div class="wrap">
+    <div class="rv">
+      <span class="kicker">安装指引</span>
+      <h2 class="h2">三步装好，三分钟开写。</h2>
+      <p class="lede">提供两种安装方式：<b>Edge 应用商店一键安装</b>（推荐，自动更新）；或下载离线包手动加载（功能完全一致，适合商店未覆盖的浏览器）。</p>
+    </div>
+    <div class="install-ways rv">
+      <a class="btn btn-primary" href="https://microsoftedge.microsoft.com/addons/detail/orbiget-craft/jmcajdeiaphbnidhmbcgjmiggbgjihcp" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+        Edge 商店一键安装（推荐）
+      </a>
+      <a class="btn btn-ghost" href="https://github.com/twang4463-commits/orbiget-craft/releases" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        下载离线包
+      </a>
+    </div>
+    <div class="feat-grid install-steps">
+      <div class="feat-card rv">
+        <div class="feat-num">离线安装 · 01</div>
+        <div class="feat-icon">⬇️</div>
+        <h3>下载并解压</h3>
+        <p>从 <b>Releases 页</b>下载最新 zip，解压得到 <b>orbiget-craft 文件夹</b>。放在你喜欢的位置（如 D:\软件\），以后升级覆盖这个文件夹即可。</p>
+      </div>
+      <div class="feat-card rv">
+        <div class="feat-num">离线安装 · 02</div>
+        <div class="feat-icon">🧩</div>
+        <h3>加载到浏览器</h3>
+        <p>地址栏输入 <code>chrome://extensions</code>（Edge 为 <code>edge://extensions</code>），打开右上角<b>「开发者模式」</b>，点<b>「加载已解压的扩展程序」</b>，选中刚解压的文件夹。</p>
+      </div>
+      <div class="feat-card rv">
+        <div class="feat-num">离线安装 · 03</div>
+        <div class="feat-icon">✅</div>
+        <h3>开始使用</h3>
+        <p>工具栏出现 Craft 图标即安装完成。以后升级：下载新包<b>覆盖原文件夹</b>，回扩展页点「刷新」——<b>不用卸载，数据不丢</b>。</p>
+      </div>
+    </div>
+    <div class="pricing-note rv install-note">
+      💡 支持 Chrome / Edge / 360 等 Chromium 内核浏览器（114+）· 离线包与商店版功能完全一致 · 项目数据存在你的工作区文件夹里，升级/迁移都不受影响
+    </div>
+  </div>
+</section>
 <!-- ================= FAQ ================= -->
 <section class="faq" id="faq">
   <div class="wrap">
@@ -1348,8 +1398,8 @@ footer{background:#3A3A3A;color:var(--paper);position:relative;overflow:hidden}
         <div class="faq-a"><p>运行时数据存在浏览器的 <b>IndexedDB</b>，项目快照写入<b>你自己授权的工作区文件夹</b>（通过 File System Access API）。Craft 没有自己的服务器——素材、文稿、日志默认全部留在你的设备上，流向由你决定：只有在你主动调用 AI 时，相关内容才会发给你选择的模型服务商（见 Q3）。换电脑也不用重新开始：你的全部项目就存放在自己电脑的一个文件夹里，跟普通文件一样，想备份想带走都随你——网盘、U 盘、移动硬盘都可以。到了新电脑再选一次这个文件夹，所有项目、素材、创作记录原样回来。</p></div>
       </div>
       <div class="faq-item">
-        <button class="faq-q"><span class="qn">Q2</span>还没上架应用商店，怎么安装？<span class="pm">+</span></button>
-        <div class="faq-a"><p>三步：① 从 <b>Releases 页</b>下载离线安装包并解压；② 浏览器地址栏打开 <code>chrome://extensions</code>，开启右上角「开发者模式」；③ 点「加载已解压的扩展程序」，选中解压目录即可。支持 Chrome 114+ 及 Edge 等 Chromium 内核浏览器，上架后可自动更新。</p></div>
+        <button class="faq-q"><span class="qn">Q2</span>怎么安装？商店版和离线包有什么区别？<span class="pm">+</span></button>
+        <div class="faq-a"><p>两种方式：<b>Edge 应用商店一键安装</b>（推荐，自动更新）；或<b>下载离线包手动加载</b>（三步：解压 → 打开 <code>chrome://extensions</code> 开启「开发者模式」→「加载已解压的扩展程序」选中文件夹）。详细步骤见上方<a href="#install"><b>安装指引</b></a>。两者功能完全一致，仅更新方式不同；数据都存本地，升级不丢。</p></div>
       </div>
       <div class="faq-item">
         <button class="faq-q"><span class="qn">Q3</span>AI 功能怎么收费？要联网吗？<span class="pm">+</span></button>
