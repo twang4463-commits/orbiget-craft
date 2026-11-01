@@ -1,13 +1,12 @@
 /**
- * Ollama 协议适配器（开源抽离版）
- *
- * 与生产代码 src/ai/client/protocol-ollama.ts 一致，仅调整 import 来源。
- * 流式为 NDJSON（每行一个 JSON，非 SSE）。
+ * Ollama 协议适配器
  */
-import type { AIConnection, AIProtocolPreset, AIChatMessage, AIChatRequest, AIChatResponse, AIToolCall } from './types'
-import { stripThinkTags } from './message-utils'
+import type { AIConnection, AIProtocolPreset } from './types'
+import type { AIChatMessage, AIChatRequest, AIChatResponse, AIToolCall } from './types'
+import { createThinkTagStreamFilter, stripThinkTags } from './message-utils'
 import { joinUrl, postJson, resolveParam, streamFetchLines, parseJson } from './http'
 import { parseOpenAIToolCalls, assertContentOrToolCalls } from './tool-format'
+import { DEFAULT_MAX_OUTPUT_TOKENS } from './types'
 
 export async function callOllama(
   settings: AIConnection,
@@ -28,7 +27,7 @@ export async function callOllama(
       temperature: resolveParam(settings, request, 'temperature', 0.7),
       top_p: resolveParam(settings, request, 'topP', 1),
       top_k: resolveParam(settings, request, 'topK', 40),
-      num_predict: resolveParam(settings, request, 'maxTokens', 2048),
+      num_predict: resolveParam(settings, request, 'maxTokens', DEFAULT_MAX_OUTPUT_TOKENS),
     },
   }
   if (request.tools?.length) {
@@ -36,12 +35,16 @@ export async function callOllama(
   }
   const data = await postJson(url, body, headers, request.timeoutSeconds ?? settings.timeoutSeconds ?? 120, signal)
   const rawText = data?.message?.content ?? ''
-  const text = stripThinking ? stripThinkTags(rawText).content : rawText
+  const stripped = stripThinkTags(rawText)
+  const text = stripThinking ? stripped.content : rawText
+  // 保留推理过程：供 AI 球提炼人话进度用（见 client-types 的 thinking 字段说明）
+  const thinking = stripped.thinking.trim()
   const toolCalls = parseOpenAIToolCalls(data?.message?.tool_calls)
   assertContentOrToolCalls(text, toolCalls, data)
   return {
     text,
     toolCalls,
+    ...(thinking ? { thinking } : {}),
     provider: 'ollama',
     model: data?.model || model,
     usage: data?.eval_count != null
@@ -77,7 +80,7 @@ export async function callOllamaStream(
       temperature: resolveParam(settings, request, 'temperature', 0.7),
       top_p: resolveParam(settings, request, 'topP', 1),
       top_k: resolveParam(settings, request, 'topK', 40),
-      num_predict: resolveParam(settings, request, 'maxTokens', 2048),
+      num_predict: resolveParam(settings, request, 'maxTokens', DEFAULT_MAX_OUTPUT_TOKENS),
     },
   }
   if (request.tools?.length) {
@@ -89,6 +92,9 @@ export async function callOllamaStream(
   let usage: AIChatResponse['usage']
   let raw: unknown
   const toolCallBuffer: AIToolCall[] = []
+  // think 标签跨块剥离（与 openai 兼容口同一份实现，逐行 stripThinkTags 同样会在
+  // 标签跨 NDJSON 行时漏掉闭合对，把思维链推进正文）
+  const thinkFilter = stripThinking ? createThinkTagStreamFilter() : null
 
   await streamFetchLines(url, headers, body, timeoutSeconds, signal, (line) => {
     const trimmed = line.trim()
@@ -115,7 +121,7 @@ export async function callOllamaStream(
     }
     const content = c.message?.content
     if (typeof content === 'string' && content) {
-      const piece = stripThinking ? stripThinkTags(content).content : content
+      const piece = thinkFilter ? thinkFilter.push(content).content : content
       if (piece) {
         fullText += piece
         onDelta(piece)
@@ -127,6 +133,15 @@ export async function callOllamaStream(
       if (parsed) toolCallBuffer.push(...parsed)
     }
   })
+
+  // 流结束：冲刷跨块残留（正常回复为空；推理被掐断时带出尾巴）
+  if (thinkFilter) {
+    const tail = thinkFilter.flush().content
+    if (tail) {
+      fullText += tail
+      onDelta(tail)
+    }
+  }
 
   void meta
   const toolCalls = toolCallBuffer.length ? toolCallBuffer : undefined

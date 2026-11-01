@@ -1,39 +1,42 @@
 /**
- * OpenAI 兼容协议适配器（开源抽离版）
- *
- * 支持 OpenAI / vLLM / SGLang / LM Studio / DeepSeek / 混元 / OpenRouter 等
- * 所有实现 /chat/completions 的服务商。
- *
- * 与生产代码 src/ai/client/protocol-openai.ts 逻辑一致，仅将
- * supportsServerSearch 的预设查询内联为直接参数，去掉设置模块依赖。
+ * OpenAI 兼容协议适配器（OpenAI / vLLM / SGLang / LM Studio / DeepSeek / 混元 / OpenRouter 等）
  */
-import type { AIConnection, AIProtocolPreset, AIChatMessage, AIChatRequest, AIChatResponse } from './types'
-import { AIClientError } from './types'
-import { stripThinkTags } from './message-utils'
-import { joinUrl, buildHeaders, postJson, resolveParam, parseJson } from './http'
+import type { AIConnection, AIProtocolPreset } from './types'
+import { supportsServerSearch } from './types'
+import type { AIChatMessage, AIChatRequest, AIChatResponse } from './types'
+import { AIClientError, messageText } from './types'
+import { createThinkTagStreamFilter, stripThinkTags } from './message-utils'
+import { buildHeaders, joinUrl, parseJson, postJson, providerError, resolveParam, toRequestError } from './http'
 import { parseOpenAIToolCalls, assertContentOrToolCalls } from './tool-format'
-
-/**
- * 该连接是否支持服务端联网搜索（配置感知）。
- * ① 协议预设声明 serverSearch（qwen/DashScope）→ 达标；
- * ② 自定义兼容接口但端点就是 DashScope 且模型是 qwen 家族 → 也达标。
- * 达标 = 请求体自动带 enable_search，搜不搜由模型自行判断（DashScope 语义）；
- * 不达标 = 什么都不加，模型如实告知无联网能力。
- */
-function supportsServerSearch(meta: AIProtocolPreset, model: string, baseUrl: string): boolean {
-  if (meta.capabilities.serverSearch === true) return true
-  // enable_search 是 DashScope 私有参数：端点必须是 dashscope，避免给其它服务商发未知字段
-  if (
-    meta.callProtocol === 'openai-compatible'
-    && /dashscope\.aliyuncs\.com/i.test(baseUrl)
-    && /qwen|qwq/i.test(model)
-  ) {
-    return true
-  }
-  return false
-}
+import { DEFAULT_MAX_OUTPUT_TOKENS } from './types'
 
 // ─── Body 构建 ───
+
+/**
+ * 内部 AIChatMessage → OpenAI 线格式：
+ * tool 角色取 tool_call_id；assistant 带 tool_calls 时转 OpenAI 结构
+ * （arguments 对象 → JSON 字符串、补 type:'function'、空 content → null）；
+ * 普通消息原样透传。function calling 回填轮的必要转换（2026-09-16）。
+ */
+function toWireMessages(messages: AIChatMessage[]): Array<Record<string, unknown>> {
+  return messages.map((m): Record<string, unknown> => {
+    if (m.role === 'tool') {
+      return { role: 'tool', content: m.content, tool_call_id: m.tool_call_id }
+    }
+    if (m.tool_calls?.length) {
+      return {
+        role: 'assistant',
+        content: messageText(m.content) || null,
+        tool_calls: m.tool_calls.map((tc) => ({
+          id: tc.id,
+          type: 'function',
+          function: { name: tc.name, arguments: JSON.stringify(tc.arguments) },
+        })),
+      }
+    }
+    return { role: m.role, content: m.content }
+  })
+}
 
 export function buildOpenAIChatBody(
   settings: AIConnection,
@@ -43,13 +46,24 @@ export function buildOpenAIChatBody(
 ): Record<string, unknown> {
   const model = request.model || settings.model
   const supported = meta.supportedParams
-  const reasoningOn = Boolean(settings.reasoning?.enabled)
+  // 请求级 reasoning 优先于连接级（模板类快速任务在 handler 里强制 enabled:false，
+  // 直接请求非思考，不被连接的推理配置带偏）
+  const reasoningOn = request.reasoning != null
+    ? Boolean(request.reasoning.enabled)
+    : Boolean(settings.reasoning?.enabled)
   const effortReasoning = reasoningOn && meta.reasoningMode === 'effort'
 
   const body: Record<string, unknown> = {
     model,
-    messages,
+    messages: toWireMessages(messages),
     stream: false,
+  }
+
+  // 非思考请求：tags 协议「默认思考」模型（deepseek-v4-flash 等）直接发非思考开关，
+  // 让标题/润色等快速模板请求真·非思考，而不是让模型先思考再在协议层剥离。
+  // 思考开启时（agent 对话等）不发——模型默认思考即可。
+  if (!reasoningOn && meta.reasoningMode === 'tags' && meta.thinkingOffBody) {
+    Object.assign(body, meta.thinkingOffBody)
   }
 
   if (request.tools?.length) {
@@ -57,16 +71,18 @@ export function buildOpenAIChatBody(
     body.tool_choice = request.toolChoice || 'auto'
   }
 
-  if (supportsServerSearch(meta, model, settings.baseUrl)) {
+  // 请求级联网开关（聊天输入坞「联网搜索」）：enable_search 是 DashScope 私有参数，
+  // 只有点开才发；协议级 serverSearch 声明在此仅作为「能力允许」条件
+  if (request.webSearch && supportsServerSearch({ protocol: settings.protocol, model, baseUrl: settings.baseUrl })) {
     body.enable_search = true
   }
 
   if (effortReasoning) {
     body.reasoning_effort = settings.reasoning!.effort
-    body.max_completion_tokens = resolveParam(settings, request, 'maxTokens', 2048)
+    body.max_completion_tokens = resolveParam(settings, request, 'maxTokens', DEFAULT_MAX_OUTPUT_TOKENS)
   } else {
     body.temperature = request.temperature ?? settings.temperature
-    if (supported.maxTokens) body.max_tokens = resolveParam(settings, request, 'maxTokens', 2048)
+    if (supported.maxTokens) body.max_tokens = resolveParam(settings, request, 'maxTokens', DEFAULT_MAX_OUTPUT_TOKENS)
     if (supported.topP) body.top_p = resolveParam(settings, request, 'topP', 1)
     if (supported.topK) body.top_k = resolveParam(settings, request, 'topK', 40)
     if (supported.frequencyPenalty) body.frequency_penalty = resolveParam(settings, request, 'frequencyPenalty', 0)
@@ -91,19 +107,37 @@ export async function callOpenAICompatible(
   const data = await postJson(url, body, buildHeaders(settings), request.timeoutSeconds ?? settings.timeoutSeconds ?? 60, signal)
   const choice = data?.choices?.[0]
   const rawText = choice?.message?.content ?? ''
-  const text = stripThinking ? stripThinkTags(rawText).content : rawText
+  const stripped = stripThinkTags(rawText)
+  const text = stripThinking ? stripped.content : rawText
+  // 推理过程两个来源：think 标签（本地模型常见）与 reasoning_content（DeepSeek/混元）。
+  // 保留它才能让 AI 球显示人话思考，而不是「正在规划下一步」这类状态机术语。
+  const thinking = [stripped.thinking, choice?.message?.reasoning_content]
+    .filter((s): s is string => typeof s === 'string' && s.trim().length > 0)
+    .join('\n')
+    .trim()
   const toolCalls = parseOpenAIToolCalls(choice?.message?.tool_calls)
-  assertContentOrToolCalls(text, toolCalls, data)
+  assertContentOrToolCalls(text, toolCalls, data, {
+    finishReason: choice?.finish_reason,
+    reasoningContent: choice?.message?.reasoning_content,
+  })
   return {
     text,
     toolCalls,
-    provider: meta.callProtocol,
+    ...(thinking ? { thinking } : {}),
+    provider: meta.id,
     model: data?.model || model,
     usage: data?.usage
       ? {
           inputTokens: data.usage.prompt_tokens,
           outputTokens: data.usage.completion_tokens,
           totalTokens: data.usage.total_tokens,
+          // DeepSeek 提示词缓存上报（其他厂商无此字段则 undefined）
+          ...(typeof data.usage.prompt_cache_hit_tokens === 'number'
+            ? { cacheHitTokens: data.usage.prompt_cache_hit_tokens }
+            : {}),
+          ...(typeof data.usage.prompt_cache_miss_tokens === 'number'
+            ? { cacheMissTokens: data.usage.prompt_cache_miss_tokens }
+            : {}),
         }
       : undefined,
     raw: data,
@@ -120,6 +154,7 @@ export async function callOpenAICompatibleStream(
   meta: AIProtocolPreset,
   onDelta: (delta: string) => void,
   signal?: AbortSignal,
+  onThinkingDelta?: (delta: string) => void,
 ): Promise<AIChatResponse> {
   const model = request.model || settings.model
   const url = joinUrl(settings.baseUrl, 'chat/completions')
@@ -154,12 +189,7 @@ export async function callOpenAICompatibleStream(
     })
     if (!response.ok || !response.body) {
       const text = await response.text().catch(() => '')
-      const data = text ? parseJson(text) : null
-      throw new AIClientError(
-        data?.error?.message || data?.message || `AI provider returned ${response.status}`,
-        'provider-error',
-        data || text,
-      )
+      throw providerError(response, text)
     }
     const reader = response.body.getReader()
     const decoder = new TextDecoder()
@@ -168,6 +198,11 @@ export async function callOpenAICompatibleStream(
     let respModel = model
     let usage: AIChatResponse['usage']
     let raw: unknown
+    /** 推理过程累积：reasoning_content（DeepSeek/混元流式）+ content 内剥出的 think 标签 */
+    let thinkingAcc = ''
+    // think 标签**跨块**剥离器（流式必须跨块有状态，逐块跑 stripThinkTags 会在
+    // 标签跨 SSE 块时失效，把整段思维链漏进正文 —— 见 message-utils 的说明）
+    const thinkFilter = stripThinking ? createThinkTagStreamFilter() : null
     const toolCallAcc = new Map<number, { id: string; name: string; argsText: string }>()
 
     for (;;) {
@@ -191,6 +226,12 @@ export async function callOpenAICompatibleStream(
             inputTokens: chunk.usage.prompt_tokens,
             outputTokens: chunk.usage.completion_tokens,
             totalTokens: chunk.usage.total_tokens,
+            ...(typeof chunk.usage.prompt_cache_hit_tokens === 'number'
+              ? { cacheHitTokens: chunk.usage.prompt_cache_hit_tokens }
+              : {}),
+            ...(typeof chunk.usage.prompt_cache_miss_tokens === 'number'
+              ? { cacheMissTokens: chunk.usage.prompt_cache_miss_tokens }
+              : {}),
           }
         }
         const delta = chunk.choices?.[0]?.delta
@@ -207,12 +248,39 @@ export async function callOpenAICompatibleStream(
           continue
         }
         const piece = typeof delta.content === 'string' ? delta.content : ''
-        if (!piece) continue
-        const clean = stripThinking ? stripThinkTags(piece).content : piece
-        if (clean) {
-          fullText += clean
-          onDelta(clean)
+        const thinkPiece = typeof delta.reasoning_content === 'string' ? delta.reasoning_content : ''
+        if (thinkPiece) {
+          thinkingAcc += thinkPiece
+          onThinkingDelta?.(thinkPiece)
         }
+        if (!piece) continue
+        if (thinkFilter) {
+          const { content: clean, thinking: thinkOut } = thinkFilter.push(piece)
+          if (thinkOut) {
+            thinkingAcc += thinkOut
+            onThinkingDelta?.(thinkOut)
+          }
+          if (clean) {
+            fullText += clean
+            onDelta(clean)
+          }
+        } else {
+          fullText += piece
+          onDelta(piece)
+        }
+      }
+    }
+
+    // 流结束：冲刷过滤器的跨块残留（正常回复此时为空；推理被 max_tokens 掐断时带出尾巴）
+    if (thinkFilter) {
+      const tail = thinkFilter.flush()
+      if (tail.thinking) {
+        thinkingAcc += tail.thinking
+        onThinkingDelta?.(tail.thinking)
+      }
+      if (tail.content) {
+        fullText += tail.content
+        onDelta(tail.content)
       }
     }
 
@@ -224,22 +292,22 @@ export async function callOpenAICompatibleStream(
         })
       : undefined
     assertContentOrToolCalls(fullText, toolCalls, raw)
+    const thinking = thinkingAcc.trim()
     return {
       text: fullText,
       toolCalls,
-      provider: meta.callProtocol,
+      provider: meta.id,
       model: respModel,
       usage,
+      ...(thinking ? { thinking } : {}),
       raw,
     }
   } catch (error) {
-    if (error instanceof AIClientError) throw error
-    if (error instanceof DOMException && error.name === 'AbortError') {
-      if (signal?.aborted) throw new AIClientError('已停止', 'aborted', error)
-      throw new AIClientError(`流式请求空闲超时（${timeoutSeconds}s 无新数据）`, 'network', error)
-    }
-    const reason = error instanceof Error ? error.message : String(error)
-    throw new AIClientError(`AI 流式请求失败（${reason}）`, 'network', error)
+    throw toRequestError(error, {
+      externallyAborted: signal?.aborted,
+      timeoutMessage: `流式请求空闲超时（${timeoutSeconds}s 无新数据）`,
+      failurePrefix: 'AI 流式请求失败',
+    })
   } finally {
     if (idleTimer) clearTimeout(idleTimer)
     signal?.removeEventListener('abort', onExternalAbort)

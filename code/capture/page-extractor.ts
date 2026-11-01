@@ -1,15 +1,12 @@
 /**
- * Page Content Extractor（开源抽离版）
+ * Page Content Extractor — 使用 Readability.js 提取网页正文内容
  *
- * 与生产代码 src/content-script/capture/page-extractor.ts 一致，
- * 使用 Mozilla Readability.js 提取网页正文内容。
- *
- * 依赖：`npm i @mozilla/readability`（MIT 许可）。
- * 审计要点：只操作当前页面的 DOM 副本（document.cloneNode），
- * 不发起任何网络请求。
+ * 集成 Mozilla Readability.js 进行高质量的内容提取，
+ * 配合 metadata-detector 提供完整的页面信息提取。
  */
+
 import { Readability } from '@mozilla/readability'
-import { detectPageMetadata } from './metadata'
+import { detectPageMetadata } from './metadata-detector'
 import { sanitizeDomText } from './text-sanitize'
 
 export interface ExtractedPageContent {
@@ -41,7 +38,7 @@ export interface ExtractedPageContent {
 
 /**
  * 提取页面主要内容
- *
+ * 
  * @returns 提取的页面内容
  */
 export function extractPageContent(): ExtractedPageContent {

@@ -1,10 +1,3 @@
-/**
- * 文本清理（开源抽离版）
- *
- * 与生产代码 src/content-script/capture/text-sanitize.ts 一致。
- * 采集的内容只在这里做本地清理（解码实体、统一换行、去零宽字符），
- * 不涉及任何远程请求。
- */
 function decodeHtmlEntities(input: string): string {
   if (!input) return ''
   const entities: Record<string, string> = {

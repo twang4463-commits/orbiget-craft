@@ -1,12 +1,9 @@
 /**
- * 采集标题统一兜底（开源抽离版）
+ * 灵感箱采集标题统一兜底
  *
- * 与生产代码 src/content-script/capture/capture-title.ts 一致，仅将
- * isSafeFileExtension（原在 src/export/utils.ts）内联为本文件自带。
- *
- * 规则：title = 短展示名（可当文件名）；URL / 页标题只进 source，
- * 永不作为 title 兜底。
+ * title = 短展示名（可当文件名）；URL / 页标题只进 source，永不作为 title 兜底。
  */
+
 
 export type CaptureTitleKind =
   | 'image'
@@ -38,10 +35,6 @@ export interface CaptureTitleHints {
 const TITLE_MAX = 40
 const EXCERPT_SNIPPET = 24
 
-function isSafeFileExtension(ext: string): boolean {
-  return /^\.[a-z0-9]{1,8}$/i.test(ext)
-}
-
 export function clampCaptureTitle(raw: string, max = TITLE_MAX): string {
   const t = raw.replace(/\s+/g, ' ').trim()
   if (!t) return ''
@@ -67,6 +60,11 @@ export function extractSiteLabel(url?: string | null): string | null {
   } catch {
     return null
   }
+}
+
+/** 扩展名只认点号 + 1-8 位字母数字（可当文件名的保守口径） */
+function isSafeFileExtension(ext: string): boolean {
+  return /^\.[a-z0-9]{1,8}$/i.test(ext)
 }
 
 /** 媒体 URL 末段是否像真正文件名（带安全扩展名） */

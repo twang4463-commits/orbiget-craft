@@ -1,14 +1,14 @@
 /**
- * Metadata DOM 采集（开源抽离版）
+ * Metadata DOM 采集（透明开源）
  *
- * 与生产代码 src/content-script/capture/metadata.ts 一致，仅将
- * JSON-LD 解析（原在 src/core/metadata.ts）内联为本文件自带。
+ * 只收集创作相关的元数据（来源、作者、时间、版权），
+ * 不收集 SEO/社交分享/CMS 内部字段 ——「采集原则」的代码落地。
  *
  * 审计要点：本模块只读取当前页面 DOM（document 查询），
  * 不发起任何网络请求，不监听、不后台采集。
  */
 
-// ── 类型定义 ──
+// ── 类型定义 ─────────────────────────────────────────────────────────────────
 
 export interface DetectedMetadata {
   // ── 创作相关核心字段 ──
@@ -28,16 +28,16 @@ export interface DetectedMetadata {
   visibleText?: string
 }
 
-interface ParsedJsonLD {
+// ── JSON-LD 结构化数据解析 ───────────────────────────────────────────────────
+
+export interface ParsedJsonLD {
   author?: string
   publishedAt?: string
   license?: string
   headline?: string
 }
 
-// ── JSON-LD 结构化数据解析 ──
-
-function parseJsonLD(raw: string): ParsedJsonLD {
+export function parseJsonLD(raw: string): ParsedJsonLD {
   const result: ParsedJsonLD = {}
   try {
     const data = JSON.parse(raw)
@@ -58,7 +58,30 @@ function parseJsonLD(raw: string): ParsedJsonLD {
   return result
 }
 
-// ── DOM 采集 ──
+// ── captureRecord 构建 ───────────────────────────────────────────────────────
+
+/** 从 content-script 采集的原始数据构建 captureRecord（纯函数，无 DOM） */
+export function buildCaptureRecordFromCollector(
+  raw: {
+    sourceUrl: string
+    sourceTitle: string
+    captureMethod: string
+    originalTitle?: string
+    metadataSnapshot?: Record<string, unknown>
+    collectedAt?: string
+  },
+) {
+  return {
+    capturedAt: raw.collectedAt || new Date().toISOString(),
+    captureMethod: raw.captureMethod,
+    sourceUrl: raw.sourceUrl,
+    sourceTitle: raw.sourceTitle,
+    originalTitle: raw.originalTitle || raw.sourceTitle || '',
+    metadataSnapshot: raw.metadataSnapshot,
+  }
+}
+
+
 
 /** 安全地取 meta 值 */
 function meta(name: string): string | undefined {
@@ -139,7 +162,7 @@ export function detectPageMetadata(): DetectedMetadata {
 }
 
 /**
- * 构建精简快照（用于采集记录）。
+ * 构建精简快照（用于 captureRecord.metadataSnapshot）。
  *
  * 只保留创作相关字段，不收集 SEO/社交分享/CMS 内部字段。
  * 输出扁平结构，不重复存储。
@@ -160,27 +183,4 @@ export function buildMetadataSnapshot(): Record<string, unknown> {
   if (meta.visibleText) snapshot.visibleTextPreview = meta.visibleText
 
   return snapshot
-}
-
-// ── captureRecord 构建 ──
-
-/** 从采集的原始数据构建 captureRecord（纯函数，无 DOM） */
-export function buildCaptureRecordFromCollector(
-  raw: {
-    sourceUrl: string
-    sourceTitle: string
-    captureMethod: string
-    originalTitle?: string
-    metadataSnapshot?: Record<string, unknown>
-    collectedAt?: string
-  },
-) {
-  return {
-    capturedAt: raw.collectedAt || new Date().toISOString(),
-    captureMethod: raw.captureMethod,
-    sourceUrl: raw.sourceUrl,
-    sourceTitle: raw.sourceTitle,
-    originalTitle: raw.originalTitle || raw.sourceTitle || '',
-    metadataSnapshot: raw.metadataSnapshot,
-  }
 }
