@@ -1,0 +1,13 @@
+{
+  "name": "orbiget-relation-graph",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Obsidian 式关系图的纯函数内核：邻域建图 / 种子可复现的力导向布局 / 画布视口变换",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

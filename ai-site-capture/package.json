@@ -1,0 +1,14 @@
+{
+  "name": "orbiget-ai-site-capture",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "AI 网页对话的流式捕获与还原：ChatGPT / DeepSeek / 豆包 / Gemini 的帧解析、增量去重、页面台账",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8",
+    "@types/chrome": "^0.2.2"
+  }
+}

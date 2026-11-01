@@ -8,7 +8,7 @@
 
 ### 这里有什么
 
-五份文档 + 四处代码，从宏观到具体：
+五份文档 + 七处代码，从宏观到具体：
 
 | 文档 | 讲什么 | 适合谁看 |
 |------|--------|----------|
@@ -21,6 +21,9 @@
 | [capture 透明代码](./code/capture/) | 网页采集的通用部分（DOM 元数据提取、正文抽取、文本清理、标题兜底），开源供审计「采集时读取了什么」 | 关心数据隐私、想验证"采集只在本地"承诺的技术用户 |
 | [ai-context 组件](./code/ai-context/) | 对话历史的确定性压缩（近期保真 / 分层截断 / 摘要折叠，不丢内容、不调模型）+ 中英混合 token 估算 | 在做 LLM 应用、被上下文长度和二次摘要成本困扰的开发者 |
 | [paragraph-split 组件](./code/paragraph-split/) | 超长段落按句读切分：只插入换行不改字符，切分前后逐字守恒 | 做编辑器、文档处理、长文导入导出的开发者 |
+| [ai-site-capture](./code/ai-site-capture/) | ChatGPT / DeepSeek / 豆包 / Gemini 网页对话的流式捕获与还原（统一帧契约 + 179 个测试用例） | 想知道扩展在 AI 站点上"读了什么"的技术用户；做同类捕获工具的开发者 |
+| [relation-graph](./code/relation-graph/) | Obsidian 式关系图纯函数内核：邻域建图 + 种子可复现力导向布局 + 光标锚定视口，23 个测试用例 | 做知识图谱、画布类产品的开发者 |
+| [scan-kit](./code/scan-kit/) | 四个前端仓库治理扫描：死模块、近重复文件、重复 CSS 块、值被压死的选择器 | 维护中大型前端的工程效能/架构负责人 |
 
 ---
 
@@ -61,7 +64,7 @@ OrbiGet Craft 是一款浏览器里的创作管理工具。我们公开了两类
 - **AI 连接层**（[code/ai-client](./code/ai-client/)）：请求只发往你自己配置的服务商。公开协议代码，让「数据发往哪里」可以逐行核对，而不是一句口号。
 - **网页采集层**（[code/capture](./code/capture/)）：采集只在你主动操作时读取当前页面、只保留创作相关字段。公开采集代码，让「采集了什么」可以被审阅。
 
-**可复用组件**——`code/` 里还有两个从产品运行时抽出来的纯函数库（ai-context、paragraph-split），零依赖、零网络请求，可以直接拷进你自己的项目。它们来自真实场景：长对话的上下文预算、几万字单段粘贴打坏文档结构。
+**可复用组件与工具**——`code/` 里还有五个从产品运行时与开发流程抽出来的部分（ai-context、paragraph-split、ai-site-capture、relation-graph、scan-kit），纯函数、零网络请求，可以直接拷进你自己的项目。它们来自真实场景：长对话的上下文预算、几万字单段粘贴打坏文档结构、跨包逐字节复制的组件、被静默压死的 CSS 值。
 
 ---
 
@@ -88,7 +91,7 @@ OrbiGet Craft 是一款浏览器里的创作管理工具。我们公开了两类
   你可以自由分享和改编，但需要：
   - **署名**：注明来自 OrbiGet Craft
   - **相同方式共享**：改编后的内容使用相同协议发布
-- `code/` 下的代码（ai-client / capture / ai-context / paragraph-split）源自 OrbiGet Craft 主项目，采用其 [AFL v3.0](./code/ai-client/LICENSE) 许可。
+- `code/` 下的代码（ai-client / capture / ai-context / paragraph-split / ai-site-capture / relation-graph / scan-kit）源自 OrbiGet Craft 主项目，采用其 [AFL v3.0](./code/ai-client/LICENSE) 许可。
 
 ---
 
