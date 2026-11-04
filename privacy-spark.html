@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>隐私政策 — OrbiGet Spark</title>
+<meta name="description" content="OrbiGet Spark 隐私政策：对话、结论与产物只存在你自己的设备上；AI 对话借用你已登录的网页版账号直接在该页面完成，不经过我们的服务器。">
+<meta property="og:title" content="隐私政策 — OrbiGet Spark">
+<meta property="og:description" content="本地优先 · 数据主权在你 · 数据流向由你决定">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+/* ============ tokens（与主页一致） ============ */
+:root{
+  --paper:#F5F4F2;
+  --paper-2:#F1F0EE;
+  --card:#FFFFFF;
+  --paper-warm:#FDFAF5;
+  --ink:#2A2520;
+  --ink-2:#4A4238;
+  --ink-3:#6E6455;
+  --ink-disabled:#9C9284;
+  --line:#DDD6CA;
+  --line-subtle:#ECE7DD;
+  --divider:#E0D9CC;
+  --green:#52525B;
+  --green-deep:#27272A;
+  --green-soft:rgba(82,82,91,.10);
+  --amber:#A6732A;
+  --amber-hover:#B8853A;
+  --amber-deep:#7A4E18;
+  --amber-soft:#C99A55;
+  --amber-muted:rgba(166,115,42,.14);
+  --on-amber:#FFFFFF;
+  --shadow-hard:6px 6px 0 rgba(42,37,32,.92);
+  --shadow-soft:0 1px 0 rgba(166,115,42,.18),0 1px 2px rgba(74,66,56,.06),0 3px 8px rgba(74,66,56,.08),0 8px 18px rgba(74,66,56,.06);
+  --f-display:"Noto Serif SC","Songti SC","STSong","SimSun","Times New Roman",serif;
+  --f-body:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --f-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Courier New",monospace;
+  --radius:14px;
+  --radius-lg:22px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--f-body);
+  font-size:16px;
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+html,body{min-height:100dvh;background:var(--paper)}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.35;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .03 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+::selection{background:var(--amber);color:var(--ink)}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:820px;margin:0 auto;padding:0 28px;position:relative;z-index:2}
+/* ============ header ============ */
+header{
+  position:sticky;top:0;z-index:50;
+  background:rgba(250,247,241,.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+}
+.nav{display:flex;align-items:center;gap:34px;height:66px}
+.brand{display:flex;align-items:center;gap:11px;font-family:var(--f-display);font-weight:700;font-size:19px;letter-spacing:-.01em}
+.brand-mark{width:30px;height:30px;border-radius:50%;flex:none;display:grid;place-items:center}
+.brand-mark img{width:100%;height:100%;border-radius:50%;display:block}
+.brand-text{display:flex;flex-direction:column;gap:1px;line-height:1.1}
+.brand-slogan{font-family:var(--f-mono);font-size:10.5px;font-weight:400;color:var(--ink-3);letter-spacing:.04em;margin-top:1px}
+.brand small{font-family:var(--f-mono);font-size:10px;font-weight:400;color:var(--ink-3);letter-spacing:.1em;border:1px solid var(--line);border-radius:99px;padding:2px 8px;margin-left:2px}
+.nav-links{display:flex;gap:26px;margin-left:auto;font-size:14.5px;font-weight:500;color:var(--ink-2)}
+.nav-links a{transition:color .15s;position:relative}
+.nav-links a:hover{color:var(--ink)}
+/* ============ hero ============ */
+.hero{padding:72px 0 48px;border-bottom:1px solid var(--line);position:relative}
+.kicker{
+  font-family:var(--f-mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--green);display:inline-flex;align-items:center;gap:10px;margin-bottom:18px;
+}
+.kicker::before{content:"";width:26px;height:1px;background:var(--green)}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;line-height:1.18;letter-spacing:-.01em}
+.hero h1{font-size:clamp(32px,4.4vw,46px);margin-bottom:18px;letter-spacing:-.02em}
+.lede{color:var(--ink-2);font-size:17px}
+.meta{
+  margin-top:22px;font-family:var(--f-mono);font-size:12px;color:var(--ink-3);
+  display:flex;gap:10px;flex-wrap:wrap;
+}
+.meta span{display:inline-flex;align-items:center;gap:6px}
+.meta .dot{width:6px;height:6px;border-radius:50%;background:var(--amber)}
+/* ============ policy body ============ */
+.policy{padding:56px 0 80px}
+.policy-section{
+  background:var(--card);border:1.5px solid var(--ink);border-radius:var(--radius);
+  box-shadow:var(--shadow-soft);padding:36px 40px;margin-bottom:28px;
+}
+.policy-section h2{
+  font-size:22px;margin-bottom:14px;display:flex;align-items:center;gap:12px;
+}
+.policy-section h2 .no{
+  font-family:var(--f-mono);font-size:12px;font-weight:500;color:var(--amber-deep);
+  background:var(--amber-muted);border:1px solid var(--amber-soft);border-radius:8px;
+  padding:3px 9px;letter-spacing:.08em;flex:none;
+}
+.policy-section p{color:var(--ink-2);margin-bottom:12px}
+.policy-section p:last-child{margin-bottom:0}
+.policy-section strong{color:var(--ink);font-weight:600}
+.policy-section ul{list-style:none;margin:14px 0 4px}
+.policy-section li{
+  position:relative;padding-left:26px;color:var(--ink-2);margin-bottom:10px;
+}
+.policy-section li::before{
+  content:"";position:absolute;left:4px;top:11px;width:8px;height:8px;
+  background:var(--amber);transform:rotate(45deg);
+}
+.policy-section li b{color:var(--ink);font-weight:600}
+.policy-section code{
+  font-family:var(--f-mono);font-size:13px;background:var(--green-soft);
+  color:var(--green-deep);border:1px solid rgba(82,82,91,.2);border-radius:6px;padding:1px 6px;
+}
+.callout{
+  background:var(--paper-warm);border:1.5px dashed var(--amber-soft);border-radius:12px;
+  padding:18px 22px;margin:16px 0 4px;font-size:15px;color:var(--ink-2);
+}
+.callout b{color:var(--amber-deep)}
+/* ============ footer ============ */
+footer{background:#3A3A3A;color:var(--paper);position:relative;overflow:hidden}
+.footer-cols{padding:56px 0 40px;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:40px}
+.footer-brand p{font-size:13.5px;color:rgba(250,247,241,.55);margin-top:14px;max-width:280px;line-height:1.8}
+.footer-col h5{font-family:var(--f-mono);font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:rgba(250,247,241,.45);margin-bottom:16px}
+.footer-col a{display:block;font-size:14px;color:rgba(250,247,241,.75);margin-bottom:10px;transition:color .15s}
+.footer-col a:hover{color:var(--amber)}
+.footer-bottom{
+  border-top:1px solid rgba(250,247,241,.14);padding:22px 0 26px;
+  display:flex;gap:16px;flex-wrap:wrap;font-family:var(--f-mono);font-size:12px;color:rgba(250,247,241,.5);
+}
+.footer-bottom .dotsep::before{content:"·";margin-right:16px}
+@media(max-width:760px){
+  .nav-links{display:none}
+  .policy-section{padding:26px 22px}
+  .footer-cols{grid-template-columns:1fr;gap:28px}
+}
+</style>
+</head>
+<body>
+<!-- ================= HEADER ================= -->
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="index.html">
+      <span class="brand-mark"><img src="spark-300.png" alt="OrbiGet Spark" width="30" height="30"></span>
+      <span class="brand-text">
+        <span style="font-family:var(--f-display);font-weight:700;font-size:19px;letter-spacing:-.01em">OrbiGet Spark <small>v0.1.5</small></span>
+        <span class="brand-slogan">把想法聊开，把结论留下</span>
+      </span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html">返回首页</a>
+    </nav>
+  </div>
+</header>
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <div class="wrap">
+    <span class="kicker">Privacy Policy</span>
+    <h1>隐私政策</h1>
+    <p class="lede">OrbiGet Spark 是「本地优先」的独立思考台：你的对话、结论与产物，默认保存在你自己的设备上。我们不做账号、不追踪、无遥测、无自有服务器。以下政策说明我们处理数据的真实方式 —— 以及一件事最容易被误解的地方：<b>Spark 的对话走的是你自己浏览器里已登录的网页版</b>，内容在你与那家服务商之间流动，不经过我们。</p>
+    <div class="meta">
+      <span><span class="dot"></span>生效日期：2026 年 11 月 4 日</span>
+      <span><span class="dot"></span>适用范围：OrbiGet Spark 浏览器扩展（v0.1.5）</span>
+    </div>
+  </div>
+</section>
+
+<section class="policy">
+  <div class="wrap">
+    <div class="policy-section">
+      <h2><span class="no">01</span>数据主权在你</h2>
+      <p>你的对话、结论、产物与思考档案，<strong>默认保存在你自己的设备上</strong>：一部分在浏览器的扩展存储里，一部分在你亲手选的本地目录里（对话档案 <code>.obit/thinking/</code>、产物 <code>assets/</code>）。换电脑时把那个文件夹拷走即可，不需要导出导入。</p>
+      <div class="callout"><b>一句话：</b>你的数据在你自己手里。我们没有账号体系，也没有服务器接收它。</div>
+    </div>
+
+    <div class="policy-section">
+      <h2><span class="no">02</span>AI 对话怎么发生的（最容易被误解的一段）</h2>
+      <p>Spark 默认<b>不使用任何 API Key</b>。它直连你已经登录的网页版 AI —— DeepSeek、豆包、ChatGPT、Gemini —— 具体做法是：扩展在你主动打开的那个网页里，<strong>借用浏览器里已有的登录态</strong>替你输入、发送、读取回复。</p>
+      <ul>
+        <li><b>内容流向</b>：在你与该网页版服务商之间。Spark 没有中间服务器，不经手你的问题与回答。</li>
+        <li><b>不接触账号密码</b>：扩展不读取、不存储、不传输你的密码或令牌 —— 它用的是浏览器已经登录好的会话。</li>
+        <li><b>只在这些网站上工作</b>：仅在清单里已登记的 AI 站点上注入脚本（DeepSeek / 豆包 / ChatGPT / Gemini 四家有实际驱动，其余为占位）。首次使用某一家时，浏览器会弹出该域名的访问授权，你可以拒绝。</li>
+        <li><b>你的历史数据归那家服务商管</b>：对话在你自己的网页版账号里，和你平时用那个网站是一样的。</li>
+      </ul>
+      <p>你也可以在设置里填入自己的 API Key，直接连厂商端点 —— 这条路同样只发给你指定的那家服务商，Key 保存在你自己的机器上。</p>
+    </div>
+
+    <div class="policy-section">
+      <h2><span class="no">03</span>页面接力</h2>
+      <p>网页端点无法替你上传附件，所以提供了「页面接力」：你在那些网页里<strong>手动</strong>发送的图片、文件或语音，会被收进当前会话并标注来源。扩展只监听应用自己打开的页面窗口，你可以在设置里一键关闭。</p>
+    </div>
+
+    <div class="policy-section">
+      <h2><span class="no">04</span>本地目录与文件</h2>
+      <p>你选的本地目录用于存放对话档案、结论与产物。扩展只往里写，不删除你的原有文件；<strong>卸载扩展不会删除这个目录里的东西</strong> —— 它是你的文件，删不删由你决定。</p>
+    </div>
+
+    <div class="policy-section">
+      <h2><span class="no">05</span>授权（License）</h2>
+      <p>付费档需要一张授权证书：你在设置里生成一个授权 ID，收款后由作者签发并放到静态托管，你点「拉取我的授权」下载。<strong>证书在你的机器上用 Ed25519 离线验签</strong> —— 只认公钥，不认下载源。除了这张证书与本机授权 ID，扩展不上报任何身份信息。</p>
+    </div>
+
+    <div class="policy-section">
+      <h2><span class="no">06</span>我们不会收集什么</h2>
+      <ul>
+        <li>不收集、不缓存、不转发你在任何网站上的浏览历史。</li>
+        <li>不建账号、不做行为分析、不打广告、不做追踪像素。</li>
+        <li>没有自有服务器接收你的数据，也没有第三方分析 SDK。</li>
+        <li>不做遥测：扩展不会把使用统计回传给我们。</li>
+      </ul>
+    </div>
+
+    <div class="policy-section">
+      <h2><span class="no">07</span>数据删除</h2>
+      <p>卸载扩展或清除浏览器数据，即可一并删除扩展域里的内容（对话、设置、授权缓存）。你本地目录里的文件需要你自己删除 —— 我们不会替你删，也不会替你留。</p>
+    </div>
+
+    <div class="policy-section">
+      <h2><span class="no">08</span>透明与政策更新</h2>
+      <p>扩展的行为以这份政策为准；政策有实质变更时，我们会在更新说明里写明，并更新页面顶部的生效日期。</p>
+    </div>
+
+    <div class="policy-section">
+      <h2><span class="no">09</span>联系我们</h2>
+      <p>隐私相关问题请通过 <a href="index.html#contact">官网联系区</a> 找到我们。</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap footer-cols">
+    <div class="footer-brand">
+      <a class="brand" href="index.html" style="color:var(--paper)">
+        <span class="brand-mark"><img src="logo.png" alt="OrbiGet Craft" width="30" height="30"></span>
+        <span class="brand-text">
+          <span style="font-family:var(--f-display);font-weight:700;font-size:19px;letter-spacing:-.01em">OrbiGet Craft <small>v0.9.0-beta</small></span>
+          <span class="brand-slogan">项目驱动的素材与创作工作台</span>
+        </span>
+      </a>
+      <p>住在浏览器里的创作引擎。记录创作过程，复盘创作成果——本地优先，安心创作。</p>
+    </div>
+    <div class="footer-col">
+      <h5>产品</h5>
+      <a href="index.html#demo">交互演示</a>
+      <a href="index.html#features">核心功能</a>
+      <a href="index.html#pricing">使用方案</a>
+      <a href="index.html#faq">常见问题</a>
+    </div>
+    <div class="footer-col">
+      <h5>资源</h5>
+      <a href="https://gitee.com/zkimyes_admin/orbiget-craft-methodology/releases" target="_blank" rel="noopener">Releases · 离线包</a>
+      <a href="privacy.html">隐私政策</a>
+    </div>
+  </div>
+  <div class="wrap footer-bottom">
+    <span>© 2026 OrbiGet Craft</span>
+    <span class="dotsep">本地优先 · 日志链可验证</span>
+    <span class="dotsep">Made with ❤️ for creators</span>
+  </div>
+</footer>
+</body>
+</html>
